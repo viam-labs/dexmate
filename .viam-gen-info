@@ -1,7 +1,7 @@
 {
-  "module_name": "viam-dexmate",
-  "visibility": "private",
-  "namespace": "devrel",
+  "module_name": "dexmate",
+  "visibility": "public",
+  "namespace": "viam-labs",
   "language": "python",
   "resource_type": "component",
   "resource_subtype": "arm",

@@ -63,7 +63,7 @@ class Arm(ArmBase, EasyResource):
     smooths the trajectory on the robot. Viam joint units are degrees.
     """
 
-    MODEL: ClassVar[Model] = Model(ModelFamily("devrel", "viam-dexmate"), "arm")
+    MODEL: ClassVar[Model] = Model(ModelFamily("viam-labs", "dexmate"), "arm")
 
     component: str
     kinematics_file: str | None

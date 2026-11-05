@@ -1,0 +1,15 @@
+Dexmate module for Viam
+Copyright 2026 Viam, Inc.
+
+This product includes data derived from dexmate-urdf
+(https://github.com/dexmate-ai/dexmate-urdf), Copyright 2025 Dexmate Inc.,
+licensed under the Apache License, Version 2.0:
+  - kinematics/<variant>/*.urdf, frames.json, visuals.json: serial chains,
+    frame offsets and collision geometry derived from Dexmate's robot models
+  - kinematics/meshes/*.glb: Dexmate's visual meshes, unmodified
+  - kinematics/meshes/*.ply: collision hulls derived from Dexmate's collision meshes
+
+This module depends at runtime on dexcontrol
+(https://github.com/dexmate-ai/dexcontrol), which Dexmate distributes under the
+GNU AGPL-3.0 or a commercial license. dexcontrol is installed from PyPI and is
+not included in this repository.

@@ -1,10 +1,10 @@
-# viam-dexmate
+# dexmate
 
 Viam module for the [Dexmate Vega](https://dexmate.ai) humanoid, built on Dexmate's
 [`dexcontrol`](https://github.com/dexmate-ai/dexcontrol) SDK. **Not yet tested on hardware.**
 
-> `dexcontrol` is AGPL-3.0 (or Dexmate commercial license). Check licensing before
-> publishing this module publicly.
+> This module is Apache-2.0. Its runtime dependency `dexcontrol` is licensed separately by Dexmate
+> (AGPL-3.0 or commercial); it's installed from PyPI, not included here. See `NOTICE`.
 
 ## Setup
 
@@ -18,7 +18,7 @@ Set the robot identity in the module's `env`:
 ```json
 {
   "type": "registry",
-  "module_id": "devrel:viam-dexmate",
+  "module_id": "viam-labs:dexmate",
   "env": {
     "ROBOT_NAME": "<echo $ROBOT_NAME on the robot>",
     "ROBOT_CONFIG": "vega_1p_gripper",
@@ -39,7 +39,7 @@ All resources share one `dexcontrol` connection, opened on first use.
 
 ## Models
 
-### `devrel:viam-dexmate:arm`
+### `viam-labs:dexmate:arm`
 
 One joint group driven through Dexmate's on-robot motion plugin. Joint units are degrees.
 
@@ -74,7 +74,7 @@ spheres. Set `collision: meshes` for hulls of Dexmate's convex collision meshes 
 (Viam can't load their `.obj` files directly, so the extractor converts them to PLY). Capsules would fit tighter, but RDK currently
 mis-reads rotated capsules from URDF ([rdk#6768](https://github.com/viamrobotics/rdk/issues/6768)).
 
-### `devrel:viam-dexmate:base`
+### `viam-labs:dexmate:base`
 
 Steered-wheel chassis. Velocity commands are resent every 100 ms until `stop`.
 
@@ -83,7 +83,7 @@ Steered-wheel chassis. Velocity commands are resent every 100 ms until `stop`.
 | `width_meters` | no | Reported in base properties for navigation |
 | `wheel_circumference_meters` | no | Reported in base properties |
 
-### `devrel:viam-dexmate:camera`
+### `viam-labs:dexmate:camera`
 
 One stream from a Vega camera. RGB → JPEG; depth → Viam raw depth (mm).
 
@@ -107,7 +107,7 @@ There are no dynamics or joint-limit checks. That's enough to see the whole robo
 ```json
 {
   "type": "registry",
-  "module_id": "devrel:viam-dexmate",
+  "module_id": "viam-labs:dexmate",
   "env": { "DEXMATE_SIM": "1", "ROBOT_NAME": "dm/vgsim-1p" }
 }
 ```
@@ -116,13 +116,15 @@ Give each arm and camera its `frame` from `kinematics/<variant>/frames.json`.
 
 ## Isaac Sim
 
-`scripts/isaac_mobile_usd.py` turns Dexmate's released Vega-1 Pro USD into a drivable one for the
-[`viam-labs:isaac-sim`](https://github.com/viam-modules/viam-isaac-sim) module. The result is in
-the private package `devrel/vega-1p-usd` (0.9.5 is the drivable version; 0.9.0 is Dexmate's file unchanged).
+`scripts/isaac_mobile_usd.py` turns Dexmate's released Vega-1 Pro USD
+([dexmate-urdf releases](https://github.com/dexmate-ai/dexmate-urdf/releases), `vega_1p.zip`) into a
+drivable one for the [`viam-labs:isaac-sim`](https://github.com/viam-modules/viam-isaac-sim) module.
+Upload the unzipped folder plus the generated `vega_1p_mobile.usda` as an `archive` package
+(`viam packages upload --type archive --name vega-1p-usd ...`) and add it to the machine's `packages`.
 In Isaac, one `base` loads `${packages.archive.vega-1p-usd}/vega_1p_mobile.usda` at `/World/vega`
 (`wheel_joints: [L_wheel_j2, R_wheel_j2]`, `wheel_radius: 0.0873`, `wheel_base: 0.371`,
 `position: [0, 0, 0.056]`). Four arms then attach to the same prim with `joint_names` (torso, head and
-each arm), which needs the isaac-sim `arm-joint-names` branch. See `dexmate-vega` in DevRelDemos.
+each arm), which needs isaac-sim's arm `joint_names` support.
 
 ## Development
 

@@ -1,5 +1,5 @@
 [project]
-name = "viam-dexmate"
+name = "dexmate"
 version = "0.1.0"
 description = "Viam module for the Dexmate Vega humanoid"
 requires-python = ">=3.10"

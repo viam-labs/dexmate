@@ -23,7 +23,7 @@ class Base(BaseBase, EasyResource):
     """Vega chassis. Viam frame (+y forward, +x right, mm, deg) is converted to
     dexcontrol's (+x forward, +y left, m, rad)."""
 
-    MODEL: ClassVar[Model] = Model(ModelFamily("devrel", "viam-dexmate"), "base")
+    MODEL: ClassVar[Model] = Model(ModelFamily("viam-labs", "dexmate"), "base")
 
     props: BaseBase.Properties
     _cmd: tuple[float, float, float] | None = None

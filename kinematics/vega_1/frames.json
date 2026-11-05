@@ -1,0 +1,193 @@
+{
+  "source": "vega_1.urdf",
+  "note": null,
+  "frames": {
+    "torso": {
+      "parent": "world",
+      "translation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "orientation": {
+        "type": "quaternion",
+        "value": {
+          "W": 1.0,
+          "X": 0.0,
+          "Y": 0.0,
+          "Z": 0.0
+        }
+      }
+    },
+    "head": {
+      "parent": "torso",
+      "translation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "orientation": {
+        "type": "quaternion",
+        "value": {
+          "W": 1.0,
+          "X": 0.0,
+          "Y": 0.0,
+          "Z": 0.0
+        }
+      }
+    },
+    "left_arm": {
+      "parent": "torso",
+      "translation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "orientation": {
+        "type": "quaternion",
+        "value": {
+          "W": 1.0,
+          "X": 0.0,
+          "Y": 0.0,
+          "Z": 0.0
+        }
+      }
+    },
+    "right_arm": {
+      "parent": "torso",
+      "translation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "orientation": {
+        "type": "quaternion",
+        "value": {
+          "W": 1.0,
+          "X": 0.0,
+          "Y": 0.0,
+          "Z": 0.0
+        }
+      }
+    },
+    "zed_left_camera": {
+      "parent": "head",
+      "translation": {
+        "x": 36.5,
+        "y": 23.0,
+        "z": 48.9
+      },
+      "orientation": {
+        "type": "quaternion",
+        "value": {
+          "W": 0.500003,
+          "X": -0.5,
+          "Y": 0.499997,
+          "Z": -0.5
+        }
+      }
+    },
+    "zed_right_camera": {
+      "parent": "head",
+      "translation": {
+        "x": 36.5,
+        "y": -27.0,
+        "z": 48.9
+      },
+      "orientation": {
+        "type": "quaternion",
+        "value": {
+          "W": 0.500003,
+          "X": -0.5,
+          "Y": 0.499997,
+          "Z": -0.5
+        }
+      }
+    },
+    "zed_depth_frame": {
+      "parent": "head",
+      "translation": {
+        "x": 25.0,
+        "y": 23.0,
+        "z": 48.9
+      },
+      "orientation": {
+        "type": "quaternion",
+        "value": {
+          "W": 0.500003,
+          "X": -0.5,
+          "Y": 0.499997,
+          "Z": -0.5
+        }
+      }
+    },
+    "F_base_cam": {
+      "parent": "world",
+      "translation": {
+        "x": 337.3,
+        "y": 0.0,
+        "z": 208.0
+      },
+      "orientation": {
+        "type": "quaternion",
+        "value": {
+          "W": 1.0,
+          "X": 0.0,
+          "Y": 0.0,
+          "Z": 0.0
+        }
+      }
+    },
+    "B_base_cam": {
+      "parent": "world",
+      "translation": {
+        "x": -330.3,
+        "y": 0.0,
+        "z": 176.0
+      },
+      "orientation": {
+        "type": "quaternion",
+        "value": {
+          "W": -4e-06,
+          "X": 0.0,
+          "Y": 0.0,
+          "Z": 1.0
+        }
+      }
+    },
+    "L_base_cam": {
+      "parent": "world",
+      "translation": {
+        "x": 20.0,
+        "y": 267.3,
+        "z": 208.0
+      },
+      "orientation": {
+        "type": "quaternion",
+        "value": {
+          "W": 0.707105,
+          "X": 0.0,
+          "Y": 0.0,
+          "Z": 0.707108
+        }
+      }
+    },
+    "R_base_cam": {
+      "parent": "world",
+      "translation": {
+        "x": 20.0,
+        "y": -267.3,
+        "z": 208.0
+      },
+      "orientation": {
+        "type": "quaternion",
+        "value": {
+          "W": 0.707105,
+          "X": 0.0,
+          "Y": 0.0,
+          "Z": -0.707108
+        }
+      }
+    }
+  }
+}

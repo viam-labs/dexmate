@@ -1,0 +1,37 @@
+{
+  "$schema": "https://dl.viam.dev/module.schema.json",
+  "module_id": "viam:viam-dexmate",
+  "visibility": "private",
+  "url": "",
+  "description": "Dexmate Vega humanoid: arms, head, torso, chassis and cameras via dexcontrol",
+  "markdown_link": "README.md",
+  "entrypoint": "dist/main",
+  "first_run": "",
+  "build": {
+    "build": "./build.sh",
+    "setup": "./setup.sh",
+    "path": "dist/archive.tar.gz",
+    "arch": [
+      "linux/amd64",
+      "linux/arm64",
+      "darwin/arm64"
+    ]
+  },
+  "models": [
+    {
+      "api": "rdk:component:arm",
+      "model": "viam:viam-dexmate:arm",
+      "short_description": "Vega left_arm, right_arm, head or torso joint group"
+    },
+    {
+      "api": "rdk:component:base",
+      "model": "viam:viam-dexmate:base",
+      "short_description": "Vega steered-wheel chassis"
+    },
+    {
+      "api": "rdk:component:camera",
+      "model": "viam:viam-dexmate:camera",
+      "short_description": "One Vega camera stream (RGB or depth) over Zenoh"
+    }
+  ]
+}

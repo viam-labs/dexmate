@@ -1,0 +1,108 @@
+{
+  "source": "vega_1u_no_ft.urdf",
+  "note": "No dexcontrol torso: arms/head are fixed to world at lift=0 and torso_flip=0; they will be wrong once those move.",
+  "frames": {
+    "head": {
+      "parent": "world",
+      "translation": {
+        "x": 23.35,
+        "y": -0.0,
+        "z": 1055.82
+      },
+      "orientation": {
+        "type": "quaternion",
+        "value": {
+          "W": 1.0,
+          "X": 0.0,
+          "Y": 0.0,
+          "Z": 0.0
+        }
+      }
+    },
+    "left_arm": {
+      "parent": "world",
+      "translation": {
+        "x": 23.35,
+        "y": -0.0,
+        "z": 1055.82
+      },
+      "orientation": {
+        "type": "quaternion",
+        "value": {
+          "W": 1.0,
+          "X": 0.0,
+          "Y": 0.0,
+          "Z": 0.0
+        }
+      }
+    },
+    "right_arm": {
+      "parent": "world",
+      "translation": {
+        "x": 23.35,
+        "y": -0.0,
+        "z": 1055.82
+      },
+      "orientation": {
+        "type": "quaternion",
+        "value": {
+          "W": 1.0,
+          "X": 0.0,
+          "Y": 0.0,
+          "Z": 0.0
+        }
+      }
+    },
+    "zed_left_camera": {
+      "parent": "head",
+      "translation": {
+        "x": 36.5,
+        "y": 23.0,
+        "z": 48.9
+      },
+      "orientation": {
+        "type": "quaternion",
+        "value": {
+          "W": 0.500003,
+          "X": -0.5,
+          "Y": 0.499997,
+          "Z": -0.5
+        }
+      }
+    },
+    "zed_right_camera": {
+      "parent": "head",
+      "translation": {
+        "x": 36.5,
+        "y": -27.0,
+        "z": 48.9
+      },
+      "orientation": {
+        "type": "quaternion",
+        "value": {
+          "W": 0.500003,
+          "X": -0.5,
+          "Y": 0.499997,
+          "Z": -0.5
+        }
+      }
+    },
+    "zed_depth_frame": {
+      "parent": "head",
+      "translation": {
+        "x": 25.0,
+        "y": 23.0,
+        "z": 48.9
+      },
+      "orientation": {
+        "type": "quaternion",
+        "value": {
+          "W": 0.500003,
+          "X": -0.5,
+          "Y": 0.499997,
+          "Z": -0.5
+        }
+      }
+    }
+  }
+}

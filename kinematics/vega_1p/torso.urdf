@@ -1,0 +1,54 @@
+<robot name="vega_1p_torso">
+  <link name="base" />
+  <link name="torso_l1">
+    <collision>
+      <origin xyz="0.148197 -0.0177471 0.0414611" rpy="-3.05613 1.37289 3.52908e-17" />
+      <geometry>
+        <box size="0.400792 0.409422 0.743426" />
+      </geometry>
+    </collision>
+  </link>
+  <joint name="torso_j1" type="revolute">
+    <origin xyz="-0.235 0.00 0.248" rpy="0 0 0" />
+    <parent link="base" />
+    <child link="torso_l1" />
+    <axis xyz="0 -1 0" />
+    <limit lower="0" upper="1.570" effort="700" velocity="0.9" />
+  </joint>
+  <link name="torso_l2">
+    <collision>
+      <origin xyz="-0.193883 0.0063283 0.0467557" rpy="-0.140539 1.35634 3.14159" />
+      <geometry>
+        <box size="0.220723 0.289936 0.626079" />
+      </geometry>
+    </collision>
+  </link>
+  <joint name="torso_j2" type="revolute">
+    <origin xyz="0.396 0.00 0.082" rpy="0 0 0" />
+    <parent link="torso_l1" />
+    <child link="torso_l2" />
+    <axis xyz="0 1 0" />
+    <limit lower="0" upper="3.141" effort="380" velocity="0.9" />
+  </joint>
+  <link name="torso_l3">
+    <collision>
+      <origin xyz="-0.0437718 0.0135746 0.234596" rpy="-0.310194 -0.336087 1.5708" />
+      <geometry>
+        <box size="0.475649 0.26067 0.645993" />
+      </geometry>
+    </collision>
+  </link>
+  <joint name="torso_j3" type="revolute">
+    <origin xyz="-0.40718 0 0.09764" rpy="0 0 0" />
+    <parent link="torso_l2" />
+    <child link="torso_l3" />
+    <axis xyz="0 -1 0" />
+    <limit lower="-1.570" upper="1.570" effort="380" velocity="0.9" />
+  </joint>
+  <link name="arm_center" />
+  <joint name="arm_center_j0" type="fixed">
+    <origin xyz="-0.05908 0 0.44528" rpy="0 0 0" />
+    <parent link="torso_l3" />
+    <child link="arm_center" />
+  </joint>
+</robot>

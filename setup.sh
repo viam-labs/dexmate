@@ -1,0 +1,11 @@
+#!/bin/sh
+set -e
+cd "$(dirname "$0")"
+
+if ! command -v uv >/dev/null 2>&1; then
+    echo "uv not found, installing..."
+    curl -LsSf https://astral.sh/uv/install.sh | sh
+    export PATH="$HOME/.local/bin:$PATH"
+fi
+
+uv sync --frozen

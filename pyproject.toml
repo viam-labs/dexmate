@@ -1,0 +1,21 @@
+[project]
+name = "viam-dexmate"
+version = "0.1.0"
+description = "Viam module for the Dexmate Vega humanoid"
+requires-python = ">=3.10"
+dependencies = [
+    "viam-sdk==0.85.2",
+    "typing-extensions",
+    "dexcontrol>=0.5,<0.6",  # must match robot firmware minor version
+    "numpy",
+    "pillow",
+]
+
+[dependency-groups]
+dev = ["pytest", "pyinstaller", "dexmate-urdf"]
+
+[tool.uv]
+package = false
+
+[tool.pytest.ini_options]
+pythonpath = ["src", "."]

@@ -18,7 +18,7 @@ Set the robot identity in the module's `env`:
 ```json
 {
   "type": "registry",
-  "module_id": "viam:viam-dexmate",
+  "module_id": "devrel:viam-dexmate",
   "env": {
     "ROBOT_NAME": "<echo $ROBOT_NAME on the robot>",
     "ROBOT_CONFIG": "vega_1p_gripper",
@@ -39,7 +39,7 @@ All resources share one `dexcontrol` connection, opened on first use.
 
 ## Models
 
-### `viam:viam-dexmate:arm`
+### `devrel:viam-dexmate:arm`
 
 One joint group driven through Dexmate's on-robot motion plugin. Joint units are degrees.
 
@@ -71,7 +71,7 @@ Collision geometry is one oriented box per link that bounds Dexmate's collision 
 (Viam can't load their `.glb`/`.obj` meshes). Capsules would fit tighter, but RDK currently
 mis-reads rotated capsules from URDF ([rdk#6768](https://github.com/viamrobotics/rdk/issues/6768)).
 
-### `viam:viam-dexmate:base`
+### `devrel:viam-dexmate:base`
 
 Steered-wheel chassis. Velocity commands are resent every 100 ms until `stop`.
 
@@ -80,7 +80,7 @@ Steered-wheel chassis. Velocity commands are resent every 100 ms until `stop`.
 | `width_meters` | no | Reported in base properties for navigation |
 | `wheel_circumference_meters` | no | Reported in base properties |
 
-### `viam:viam-dexmate:camera`
+### `devrel:viam-dexmate:camera`
 
 One stream from a Vega camera. RGB → JPEG; depth → Viam raw depth (mm).
 
@@ -93,16 +93,35 @@ One stream from a Vega camera. RGB → JPEG; depth → Viam raw depth (mm).
 | `sensor` | yes | `head_camera`, `left_wrist_camera`, `right_wrist_camera`, `base_{front,back,left,right}_camera` |
 | `stream` | for `head_camera` | `left_rgb`, `right_rgb` or `depth` |
 
+## Simulation
+
+Set `DEXMATE_SIM=1` in the module's `env` to run without a Vega or a Dexmate network.
+`src/models/sim.py` stands in for `dexcontrol`: joints jump to their targets, the chassis
+accepts commands, and cameras return synthetic frames (a color ramp; depth 0.5–3 m).
+There are no dynamics or joint-limit checks. That's enough to see the whole robot in the
+3D scene and to plan with the motion service.
+
+```json
+{
+  "type": "registry",
+  "module_id": "devrel:viam-dexmate",
+  "env": { "DEXMATE_SIM": "1", "ROBOT_NAME": "dm/vgsim-1p" }
+}
+```
+
+Give each arm and camera its `frame` from `kinematics/<variant>/frames.json`.
+
 ## Development
 
 ```sh
-uv sync                    # runtime + dev deps (pytest, pyinstaller, dexmate-urdf)
+uv sync                    # runtime + dev deps (pytest, dexmate-urdf)
 uv run pytest              # no hardware or Zenoh network needed
 uv run python scripts/extract_kinematics.py   # regenerate kinematics/ after bumping dexmate-urdf
-./build.sh                 # PyInstaller binary + dist/archive.tar.gz
+./build.sh                 # source archive: dist/archive.tar.gz
 ```
 
-`setup.sh` installs `uv` if missing and runs `uv sync --frozen`; commit `uv.lock` changes.
+The module ships as source. On the target, `setup.sh` (meta.json `first_run`) installs `uv` if missing
+and runs `uv sync --frozen --no-dev`; `run.sh` is the entrypoint. Commit `uv.lock` changes.
 Model tests use a fake robot that mimics `dexcontrol`. Kinematics tests check that the bundled
 URDFs match the installed `dexmate-urdf`, that joint order matches `dexcontrol`, and that each
 collision box contains every one of Dexmate's collision spheres.

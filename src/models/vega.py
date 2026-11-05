@@ -4,8 +4,10 @@ dexcontrol opens one Zenoh session and one heartbeat per Robot, so every Viam
 resource in this module goes through `get()` rather than holding its own Robot.
 The robot variant and network come from the ROBOT_NAME and ZENOH_CONFIG env
 vars (set them in the module's `env` config).
+Set DEXMATE_SIM=1 to run against a simulated robot instead (see sim.py).
 """
 
+import os
 import threading
 
 _lock = threading.Lock()
@@ -15,6 +17,10 @@ _users = 0
 
 
 def _connect(sensors: frozenset[str]):
+    if os.environ.get("DEXMATE_SIM"):
+        from .sim import ROBOT
+
+        return ROBOT  # one instance, so sim joint state survives reconnects
     from dexcontrol.core.config import get_robot_config
     from dexcontrol.robot import Robot
 

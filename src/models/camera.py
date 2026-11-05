@@ -32,7 +32,7 @@ class Camera(CameraBase, EasyResource):
     `stream` (multi-stream cameras only, e.g. head_camera): left_rgb, right_rgb, depth.
     """
 
-    MODEL: ClassVar[Model] = Model(ModelFamily("viam", "viam-dexmate"), "camera")
+    MODEL: ClassVar[Model] = Model(ModelFamily("devrel", "viam-dexmate"), "camera")
 
     sensor: str
     stream: str | None

@@ -12,7 +12,7 @@ dependencies = [
 ]
 
 [dependency-groups]
-dev = ["pytest", "pyinstaller", "dexmate-urdf"]
+dev = ["pytest", "dexmate-urdf"]
 
 [tool.uv]
 package = false

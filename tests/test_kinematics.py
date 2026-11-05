@@ -71,3 +71,31 @@ def test_variant_selects_bundled_urdf():
 def test_variant_without_torso_rejected():
     with pytest.raises(ValueError, match="vega_1u"):
         make_arm(component="torso", variant="vega_1u")
+
+
+@pytest.mark.parametrize("suffix,variant", [("1", "vega_1"), ("1p", "vega_1p"), ("1u", "vega_1u")])
+def test_robot_name_suffix_selects_variant(monkeypatch, suffix, variant):
+    monkeypatch.setenv("ROBOT_NAME", f"dm/vg0123456789-{suffix}")
+    _, data = asyncio.run(make_arm(component="left_arm").get_kinematics())
+    assert f'name="{variant}_left_arm"'.encode() in data
+
+
+def test_explicit_variant_overrides_robot_name(monkeypatch):
+    monkeypatch.setenv("ROBOT_NAME", "dm/vg0123456789-1u")
+    _, data = asyncio.run(make_arm(component="left_arm", variant="vega_1p_no_ft").get_kinematics())
+    assert b'name="vega_1p_no_ft_left_arm"' in data
+
+
+@pytest.mark.parametrize("name", [None, "dm/vg0123456789-2x", "nodash"])
+def test_unknown_or_missing_robot_name_has_no_kinematics(monkeypatch, name):
+    monkeypatch.delenv("ROBOT_NAME", raising=False)
+    if name:
+        monkeypatch.setenv("ROBOT_NAME", name)
+    with pytest.raises(ValueError, match="set `variant`"):
+        asyncio.run(make_arm(component="left_arm").get_kinematics())
+
+
+def test_robot_name_without_torso_rejected(monkeypatch):
+    monkeypatch.setenv("ROBOT_NAME", "dm/vg0123456789-1u")
+    with pytest.raises(ValueError, match="vega_1u"):
+        make_arm(component="torso")

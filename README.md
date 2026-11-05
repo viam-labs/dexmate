@@ -19,9 +19,21 @@ Set the robot identity in the module's `env`:
 {
   "type": "registry",
   "module_id": "viam:viam-dexmate",
-  "env": { "ROBOT_NAME": "<echo $ROBOT_NAME on the robot>", "ZENOH_CONFIG": "/path/to/zenoh.json5" }
+  "env": {
+    "ROBOT_NAME": "<echo $ROBOT_NAME on the robot>",
+    "ROBOT_CONFIG": "vega_1p_gripper",
+    "ZENOH_CONFIG": "/path/to/zenoh.json5"
+  }
 }
 ```
+
+- `ROBOT_NAME` has the form `dm/vgXXXXXXXXXX-1p`. The suffix is `-1` (Vega-1), `-1p` (Vega-1 Pro) or
+  `-1u` (Vega-1U, upper body). It is already set on the robot's Jetson; on any other machine you must set it yourself.
+- `ROBOT_CONFIG` is optional. It names the installed end effector, for example `vega_1p_gripper`;
+  `dexbot cfg list` shows the nine valid values.
+- Access to the robot's Zenoh network uses certificate files that Dexmate provides, referenced from the
+  config file `ZENOH_CONFIG` points to. Those files must exist on the machine running viam-server and be
+  readable by the module process.
 
 All resources share one `dexcontrol` connection, opened on first use.
 
@@ -39,8 +51,8 @@ One joint group driven through Dexmate's on-robot motion plugin. Joint units are
 |---|---|---|
 | `component` | yes | `left_arm`, `right_arm`, `head` or `torso` |
 | `velocity_scale` | no | (0, 1], fraction of max joint speed. Default: plugin default (~0.5) |
-| `variant` | no | Selects bundled kinematics (needed for the frame system and motion service): `vega_1`, `vega_1p`, `vega_1p_no_ft`, `vega_1u`, `vega_1u_no_ft`. Use the `_no_ft` variant if the arms have no wrist force/torque sensor (the flange is 30.2 mm shorter). Hand type doesn't matter; arm chains end at the flange (`L_ee`/`R_ee`). Vega-1U has no `torso`. |
-| `kinematics_file` | no | Path to your own URDF; overrides `variant`. |
+| `variant` | no | Selects bundled kinematics (needed for the frame system and motion service). Default: derived from the `ROBOT_NAME` suffix (`-1` → `vega_1`, `-1p` → `vega_1p`, `-1u` → `vega_1u`); never a `_no_ft` variant, since the force/torque sensor isn't encoded in `ROBOT_NAME`, so set `_no_ft` explicitly. Options: `vega_1`, `vega_1p`, `vega_1p_no_ft`, `vega_1u`, `vega_1u_no_ft`. Use the `_no_ft` variant if the arms have no wrist force/torque sensor (the flange is 30.2 mm shorter). Hand type doesn't matter; arm chains end at the flange (`L_ee`/`R_ee`). Vega-1U has no `torso`. |
+| `kinematics_file` | no | Path to your own URDF; overrides `variant` and `ROBOT_NAME`. |
 
 `move_to_position` / `get_end_position` are not implemented; use the motion service.
 

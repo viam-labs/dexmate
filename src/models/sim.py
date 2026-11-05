@@ -1,7 +1,8 @@
 """Stand-in for dexcontrol's Robot, used when DEXMATE_SIM is set.
 
 Lets the module run with no Vega and no Dexmate network: joints jump straight to
-their targets, the chassis accepts commands, cameras return synthetic frames.
+their targets, the chassis accepts commands, cameras, IMUs and lidars return synthetic
+data, and hands close until they meet an optional simulated object.
 Enough for the frame system, the 3D scene and motion planning; no dynamics.
 """
 
@@ -43,6 +44,72 @@ class _Joints:
         pass
 
 
+class _Wrench:
+    def get_wrench_state(self):
+        return np.array([0.0, 0.0, -4.9, 0.0, 0.0, 0.0])  # ~0.5 kg of tool hanging off the flange
+
+    def get_button_state(self):
+        return {"blue_button": False, "green_button": False}
+
+
+class _Arm(_Joints):
+    def __init__(self):
+        super().__init__(7)
+        self.wrench_sensor = _Wrench()
+
+
+class _Hand:
+    """Six-joint hand, open at 0 rad and closed at 1 rad. Set `block_at` to put an
+    object in its grip: closing then stops there, as the real joints would stall."""
+
+    def __init__(self, n: int = 6):
+        self._joint_pos_open, self._joint_pos_close = np.zeros(n), np.ones(n)
+        self._pos = self._joint_pos_open.copy()
+        self.block_at: float | None = None
+
+    def get_joint_pos(self):
+        return self._pos.copy()
+
+    def set_joint_pos(self, pos, wait_time=0.0, exit_on_reach=False, **kwargs):
+        pos = np.asarray(pos, dtype=float)
+        self._pos = np.minimum(pos, self.block_at) if self.block_at is not None else pos
+
+    def open_hand(self, wait_time=0.0, exit_on_reach=False, **kwargs):
+        self.set_joint_pos(self._joint_pos_open)
+
+    def close_hand(self, wait_time=0.0, exit_on_reach=False, **kwargs):
+        self.set_joint_pos(self._joint_pos_close)
+
+    def get_finger_tip_force(self):
+        gripping = self.block_at is not None and np.allclose(self._pos, self.block_at)
+        return np.full(5, 2.0 if gripping else 0.0)
+
+
+class _Imu:
+    """Level and at rest: identity orientation, gravity up the z axis."""
+
+    def get_quat(self):
+        return np.array([1.0, 0.0, 0.0, 0.0])  # w, x, y, z
+
+    def get_gyro(self):
+        return np.zeros(3)
+
+    def get_acc(self):
+        return np.array([0.0, 0.0, 9.81])
+
+
+class _Lidar3D:
+    def get_obs(self):
+        a = np.linspace(0, 2 * np.pi, 360, endpoint=False)
+        return {"x": 3.0 * np.cos(a), "y": 3.0 * np.sin(a), "z": np.zeros_like(a)}  # a 3 m ring
+
+
+class _Lidar2D:
+    def get_obs(self):
+        a = np.linspace(-np.pi, np.pi, 360, endpoint=False)
+        return {"ranges": np.full(360, 2.0), "angles": a}
+
+
 class _Chassis:
     max_lin_vel, max_ang_vel = MAX_LIN_VEL, MAX_ANG_VEL
 
@@ -64,15 +131,27 @@ class _Camera:
     def get_obs(self, obs_keys=None):
         return {k: self._frame(k) for k in obs_keys} if obs_keys else self._frame("rgb")
 
+    def get_camera_info(self):
+        # ponytail: dexsensor's real schema is undocumented; this nests intrinsics the way find_intrinsics expects.
+        h, w = FRAME_HW
+        return {"name": "sim", "left": {"fx": 500.0, "fy": 500.0, "cx": w / 2, "cy": h / 2}}
+
 
 class _Sensors:
     def __getattr__(self, name):
+        if name.endswith("_imu"):
+            return _Imu()
+        if name.startswith("lidar_3d"):
+            return _Lidar3D()
+        if name.startswith("lidar_2d"):
+            return _Lidar2D()
         return _Camera()
 
 
 class SimRobot:
     def __init__(self):
-        self.left_arm, self.right_arm = _Joints(7), _Joints(7)
+        self.left_arm, self.right_arm = _Arm(), _Arm()
+        self.left_hand, self.right_hand = _Hand(), _Hand()
         self.head, self.torso = _Joints(3), _Joints(3)
         self.chassis = _Chassis()
         self.sensors = _Sensors()

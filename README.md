@@ -95,12 +95,59 @@ One stream from a Vega camera. RGB → JPEG; depth → Viam raw depth (mm).
 |---|---|---|
 | `sensor` | yes | `head_camera`, `left_wrist_camera`, `right_wrist_camera`, `base_{front,back,left,right}_camera` |
 | `stream` | for `head_camera` | `left_rgb`, `right_rgb` or `depth` |
+| `intrinsics` | no | `{fx, fy, cx, cy}` in pixels for depth point clouds. Default: read from the sensor's camera info (unverified on hardware; set this if point clouds error). |
+| `pcd_stride` | no | Use every Nth depth pixel for point clouds. Default `2` (a full ZED frame is ~0.5 M points). |
+
+Depth streams serve `GetPointCloud` in the camera's optical frame (x right, y down, z forward), in meters.
+
+### `viam-labs:dexmate:lidar`
+
+A Vega lidar as a point-cloud-only camera (`GetPointCloud`), in the lidar's own frame (place it with
+`front_lidar` / `back_lidar` from `frames.json`).
+
+| Attribute | Required | Description |
+|---|---|---|
+| `sensor` | yes | `lidar_3d_front`, `lidar_3d_back` (Vega-1 Pro) or `lidar_2d_front` (Vega-1) |
+
+### `viam-labs:dexmate:gripper`
+
+The installed end effector: DexGripper, F5D6 or F5D6 V2 hand. Set `ROBOT_CONFIG` (e.g. `vega_1p_gripper`)
+so `dexcontrol` knows which. `Open`/`Grab` use Dexmate's open/close positions; inputs are joint
+positions in radians. Dexmate reports no grasp state, so `IsHoldingSomething` is a heuristic: after a grab,
+a joint stalled short of closed, or (V2 hands) fingertip force.
+
+| Attribute | Required | Description |
+|---|---|---|
+| `hand` | yes | `left_hand` or `right_hand` |
+| `move_time_s` | no | Longest wait for an open/close to finish. Default `2.0`. |
+| `holding_tolerance_rad` | no | Stall distance from closed that counts as holding. Default `0.1`. |
+| `holding_force` | no | Summed fingertip force that counts as holding (V2 hands). Default `1.0`. |
+
+`DoCommand`: `{"set_mode": "mit" | "velocity" | "force"}` (DexGripper), `{"get_finger_tip_force": true}` (V2 hands).
+
+### `viam-labs:dexmate:force-torque`
+
+Wrist force/torque sensor (`sensor` API). Readings: `fx`, `fy`, `fz` (N), `tx`, `ty`, `tz` (N·m) and the
+arm's `blue_button` / `green_button`. Errors on `_no_ft` arms.
+
+| Attribute | Required | Description |
+|---|---|---|
+| `arm` | yes | `left_arm` or `right_arm` |
+
+### `viam-labs:dexmate:imu`
+
+`movement_sensor` with orientation, angular velocity (deg/s) and linear acceleration (m/s²).
+
+| Attribute | Required | Description |
+|---|---|---|
+| `sensor` | yes | `head_imu` (ZED, every variant) or `chassis_imu` (Vega-1) |
 
 ## Simulation
 
 Set `DEXMATE_SIM=1` in the module's `env` to run without a Vega or a Dexmate network.
 `src/models/sim.py` stands in for `dexcontrol`: joints jump to their targets, the chassis
-accepts commands, and cameras return synthetic frames (a color ramp; depth 0.5–3 m).
+accepts commands, cameras return synthetic frames (a color ramp; depth 0.5–3 m), IMUs read
+level and at rest, lidars return fixed rings, and both hands are six-joint hands.
 There are no dynamics or joint-limit checks. That's enough to see the whole robot in the
 3D scene and to plan with the motion service.
 

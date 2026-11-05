@@ -31,6 +31,26 @@
       "api": "rdk:component:camera",
       "model": "viam-labs:dexmate:camera",
       "short_description": "One Vega camera stream (RGB or depth) over Zenoh"
+    },
+    {
+      "api": "rdk:component:gripper",
+      "model": "viam-labs:dexmate:gripper",
+      "short_description": "Vega DexGripper or F5D6 hand (left_hand / right_hand)"
+    },
+    {
+      "api": "rdk:component:sensor",
+      "model": "viam-labs:dexmate:force-torque",
+      "short_description": "Vega wrist force/torque sensor and arm buttons"
+    },
+    {
+      "api": "rdk:component:movement_sensor",
+      "model": "viam-labs:dexmate:imu",
+      "short_description": "Vega head (ZED) or chassis IMU"
+    },
+    {
+      "api": "rdk:component:camera",
+      "model": "viam-labs:dexmate:lidar",
+      "short_description": "Vega 2D/3D lidar as point clouds"
     }
   ]
 }

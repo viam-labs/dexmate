@@ -114,6 +114,16 @@ There are no dynamics or joint-limit checks. That's enough to see the whole robo
 
 Give each arm and camera its `frame` from `kinematics/<variant>/frames.json`.
 
+## Isaac Sim
+
+`scripts/isaac_mobile_usd.py` turns Dexmate's released Vega-1 Pro USD into a drivable one for the
+[`viam-labs:isaac-sim`](https://github.com/viam-modules/viam-isaac-sim) module. The result is in
+the private package `devrel/vega-1p-usd` (0.9.5 is the drivable version; 0.9.0 is Dexmate's file unchanged).
+In Isaac, one `base` loads `${packages.archive.vega-1p-usd}/vega_1p_mobile.usda` at `/World/vega`
+(`wheel_joints: [L_wheel_j2, R_wheel_j2]`, `wheel_radius: 0.0873`, `wheel_base: 0.371`,
+`position: [0, 0, 0.056]`). Four arms then attach to the same prim with `joint_names` (torso, head and
+each arm), which needs the isaac-sim `arm-joint-names` branch. See `dexmate-vega` in DevRelDemos.
+
 ## Development
 
 ```sh

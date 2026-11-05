@@ -3,6 +3,7 @@ import io
 from typing import Any, ClassVar, Dict, Mapping, Optional, Sequence, Tuple
 
 import numpy as np
+from google.protobuf.timestamp_pb2 import Timestamp
 from PIL import Image
 from typing_extensions import Self
 from viam.components.camera import Camera as CameraBase
@@ -64,13 +65,15 @@ class Camera(CameraBase, EasyResource):
 
     async def get_images(self, *, filter_source_names=None, extra=None, timeout=None, **kwargs):
         frame = await asyncio.to_thread(self._frame)
+        captured = Timestamp()
+        captured.GetCurrentTime()
         if frame.ndim == 2:
             img = NamedImage(self.name, encode_depth(frame), CameraMimeType.VIAM_RAW_DEPTH)
         else:
             buf = io.BytesIO()
             Image.fromarray(frame).save(buf, format="JPEG")
             img = NamedImage(self.name, buf.getvalue(), CameraMimeType.JPEG)
-        return [img], ResponseMetadata()
+        return [img], ResponseMetadata(captured_at=captured)
 
     async def get_point_cloud(self, *, extra=None, timeout=None, **kwargs) -> Tuple[bytes, str]:
         # Needs intrinsics (head_camera.get_camera_info()); add with hardware.

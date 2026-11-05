@@ -26,7 +26,7 @@ def test_bundled_kinematics_match_installed_dexmate_urdf(tmp_path):
     fresh = sorted(p.relative_to(tmp_path) for p in tmp_path.rglob("*.*"))
     assert fresh == sorted(p.relative_to(KINEMATICS_DIR) for p in KINEMATICS_DIR.rglob("*.*"))
     for rel in fresh:
-        assert (tmp_path / rel).read_text() == (KINEMATICS_DIR / rel).read_text(), f"{rel} is stale"
+        assert (tmp_path / rel).read_bytes() == (KINEMATICS_DIR / rel).read_bytes(), f"{rel} is stale"
 
 
 @pytest.mark.parametrize("urdf", URDFS, ids=lambda p: f"{p.parent.name}/{p.stem}")

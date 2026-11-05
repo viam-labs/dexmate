@@ -239,3 +239,11 @@ def test_last_release_shuts_down(fake_robot):
     assert fake_robot[0].shutdowns == 0
     run(base.close())
     assert fake_robot[0].shutdowns == 1
+
+
+def test_camera_stamps_capture_time():
+    import time
+
+    cam = make(Camera, sensor="head_camera", stream="left_rgb")
+    _, meta = run(cam.get_images())
+    assert abs(meta.captured_at.seconds - time.time()) < 60

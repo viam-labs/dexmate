@@ -1,5 +1,7 @@
 import asyncio
+import json
 import os
+import struct
 from collections.abc import AsyncIterator
 from pathlib import Path
 from typing import Any, ClassVar, Dict, Mapping, Optional, Sequence, Tuple
@@ -25,6 +27,24 @@ VARIANTS = sorted(p.name for p in KINEMATICS_DIR.iterdir() if p.is_dir()) if KIN
 
 # ROBOT_NAME suffix -> variant. Never `_no_ft`: the F/T sensor isn't encoded in ROBOT_NAME.
 SUFFIX_VARIANTS = {"1": "vega_1", "1p": "vega_1p", "1u": "vega_1u"}
+
+
+def glb_with_root_matrix(glb: bytes, matrix) -> bytes:
+    """Wrap a GLB's default scene in one node carrying a row-major 4x4 transform.
+
+    Edits only the JSON chunk; mesh data passes through untouched.
+    """
+    json_len = struct.unpack_from("<I", glb, 12)[0]
+    gltf = json.loads(glb[20 : 20 + json_len])
+    scene = gltf["scenes"][gltf.get("scene", 0)]
+    gltf.setdefault("nodes", []).append(
+        {"matrix": np.asarray(matrix, dtype=float).reshape(4, 4).T.flatten().tolist(), "children": scene["nodes"]}
+    )
+    scene["nodes"] = [len(gltf["nodes"]) - 1]
+    js = json.dumps(gltf, separators=(",", ":")).encode()
+    js += b" " * (-len(js) % 4)  # GLB chunks are 4-byte aligned; JSON pads with spaces
+    body = struct.pack("<I4s", len(js), b"JSON") + js + glb[20 + json_len :]
+    return struct.pack("<4sII", b"glTF", 2, 12 + len(body)) + body
 
 
 def variant_from_robot_name() -> str | None:
@@ -63,6 +83,8 @@ class Arm(ArmBase, EasyResource):
             variant = variant_from_robot_name()
         if variant is not None and not (KINEMATICS_DIR / variant / f"{attrs['component']}.urdf").is_file():
             raise ValueError(f"no {attrs['component']} kinematics for variant {variant!r}; have {VARIANTS}")
+        if attrs.get("render_meshes") and (attrs.get("kinematics_file") or variant is None):
+            raise ValueError("`render_meshes` needs bundled kinematics: set `variant` (or ROBOT_NAME), not `kinematics_file`")
         scale = attrs.get("velocity_scale")
         if scale is not None and not 0 < scale <= 1:
             raise ValueError("`velocity_scale` must be in (0, 1]")
@@ -76,6 +98,9 @@ class Arm(ArmBase, EasyResource):
             str(KINEMATICS_DIR / variant / f"{self.component}.urdf") if variant else None
         )
         self.velocity_scale = attrs.get("velocity_scale")
+        # Meshes are placed relative to the bundled collision boxes, so only with bundled kinematics.
+        self.mesh_variant = variant if attrs.get("render_meshes") and not attrs.get("kinematics_file") else None
+        self._models = None
 
     def _part(self):
         return getattr(vega.get(), self.component)
@@ -139,7 +164,19 @@ class Arm(ArmBase, EasyResource):
         raise NotImplementedError()
 
     async def get_3d_models(self, *, extra=None, timeout=None, **kwargs) -> Mapping[str, Mesh]:
-        return {}
+        """Dexmate's visual GLB per link, keyed by link id, anchored at the link's collision box."""
+        if self.mesh_variant is None:
+            return {}
+        if self._models is None:
+            visuals = json.loads((KINEMATICS_DIR / self.mesh_variant / "visuals.json").read_text())[self.component]
+            self._models = {
+                link: Mesh(
+                    content_type="model/gltf-binary",
+                    mesh=glb_with_root_matrix((KINEMATICS_DIR / "meshes" / v["mesh"]).read_bytes(), v["matrix"]),
+                )
+                for link, v in visuals.items()
+            }
+        return self._models
 
     async def set_manual_mode(self, manual_mode: bool, enabled_for: int = 0, *, extra=None, timeout=None, **kwargs):
         raise NotImplementedError()

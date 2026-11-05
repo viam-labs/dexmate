@@ -8,10 +8,15 @@ the chains and the cameras/lidars together.
 Collision: dexmate meshes are .glb/.obj (Viam reads .stl/.ply only), so each
 link's collision spheres are bounded by one oriented box.
 
+Visuals: visuals.json maps each chain link to its GLB in kinematics/meshes/ (shared
+across variants) and the matrix placing it relative to the link's collision
+geometry, which is where Viam's 3D scene anchors an arm's Get3DModels meshes.
+
     uv run python scripts/extract_kinematics.py   # regenerates kinematics/
 """
 
 import copy
+import hashlib
 import json
 import shutil
 import xml.etree.ElementTree as ET
@@ -164,6 +169,36 @@ def chain_urdf(robot: Robot, spheres: Robot, name, root, tip):
     return ET.tostring(out, encoding="unicode") + "\n"
 
 
+def chain_visuals(robot: Robot, urdf_dir: Path, spheres: Robot, root, tip, meshes_out: Path):
+    """link -> {"mesh": GLB file name, "matrix": row-major 4x4 from collision anchor to visual}."""
+    out = {}
+    for j in robot.chain(root, tip):
+        link = j.find("child").get("link")
+        visuals = robot.links[link].findall("visual")
+        if not visuals:
+            continue
+        if len(visuals) > 1:
+            raise ValueError(f"{link}: {len(visuals)} visuals; only one per link is supported")
+        vis = visuals[0]
+        mesh = vis.find("geometry/mesh")
+        if mesh is None or mesh.get("scale") not in (None, "1 1 1"):
+            raise ValueError(f"{link}: only unscaled mesh visuals are supported")
+        src = (urdf_dir / mesh.get("filename")).resolve()
+        if src.suffix != ".glb":
+            print(f"  skipping {link}: {src.name} is not GLB (the 3D scene loads GLB only)")
+            continue
+        data = src.read_bytes()
+        # Content-addressed: variants share identical meshes, and same-named ones can differ.
+        dst = meshes_out / f"{src.stem}-{hashlib.sha256(data).hexdigest()[:10]}.glb"
+        meshes_out.mkdir(parents=True, exist_ok=True)
+        dst.write_bytes(data)
+        col = link_collision(spheres.links.get(link))
+        anchor = origin_tf(col) if col is not None else np.eye(4)
+        m = np.linalg.inv(anchor) @ origin_tf(vis)
+        out[link] = {"mesh": dst.name, "matrix": [round(float(v), 9) for v in m.flatten()]}
+    return out
+
+
 def pose_cfg(parent, t):
     q = RotationMatrix(t[:3, :3].flatten()).to_quaternion()
     w, x, y, z = q.w, q.i, q.j, q.k
@@ -175,8 +210,10 @@ def pose_cfg(parent, t):
     }
 
 
-def extract(urdf: Path, sphere_urdf: Path, out: Path):
+def extract(urdf: Path, sphere_urdf: Path, out: Path, meshes_out: Path | None = None):
     robot, spheres = Robot(urdf), Robot(sphere_urdf)
+    meshes_out = meshes_out or out.parent / "meshes"
+    visuals = {}
     has_torso = any(j.get("name").startswith("torso_j") for j in robot.joints)
     out.mkdir(parents=True, exist_ok=True)
     frames, written = {}, []
@@ -186,6 +223,7 @@ def extract(urdf: Path, sphere_urdf: Path, out: Path):
         root = root or robot.root
         (out / f"{comp}.urdf").write_text(chain_urdf(robot, spheres, f"{urdf.stem}_{comp}", root, tip))
         written.append(comp)
+        visuals[comp] = chain_visuals(robot, urdf.parent, spheres, root, tip, meshes_out)
         if comp == "torso":
             frames[comp] = pose_cfg("world", np.eye(4))
         elif has_torso:
@@ -200,6 +238,7 @@ def extract(urdf: Path, sphere_urdf: Path, out: Path):
     note = None if has_torso else (
         "No dexcontrol torso: arms/head are fixed to world at lift=0 and torso_flip=0; they will be wrong once those move."
     )
+    (out / "visuals.json").write_text(json.dumps(visuals, indent=2) + "\n")
     (out / "frames.json").write_text(json.dumps({"source": urdf.name, "note": note, "frames": frames}, indent=2) + "\n")
     return written
 

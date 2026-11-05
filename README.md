@@ -57,7 +57,7 @@ On Vega-1U the arms and head are fixed to `world` at lift = 0, since `dexcontrol
 
 Collision geometry is one oriented box per link that bounds Dexmate's collision spheres
 (Viam can't load their `.glb`/`.obj` meshes). Capsules would fit tighter, but RDK currently
-mis-reads rotated capsules from URDF.
+mis-reads rotated capsules from URDF ([rdk#6768](https://github.com/viamrobotics/rdk/issues/6768)).
 
 ### `viam:viam-dexmate:base`
 

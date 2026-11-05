@@ -5,7 +5,7 @@
   "url": "https://github.com/viam-labs/dexmate",
   "description": "Dexmate Vega humanoid: arms, head, torso, chassis and cameras via dexcontrol",
   "markdown_link": "README.md",
-  "entrypoint": "run.sh",
+  "entrypoint": "run",
   "first_run": "setup.sh",
   "build": {
     "build": "./build.sh",

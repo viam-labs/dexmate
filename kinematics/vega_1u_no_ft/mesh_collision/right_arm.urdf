@@ -1,0 +1,127 @@
+<robot name="vega_1u_no_ft_right_arm">
+  <link name="arm_center" />
+  <link name="R_arm_l1">
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="../../meshes/R_arm_l1-hull-4acb734ed9.ply" />
+      </geometry>
+    </collision>
+  </link>
+  <joint name="R_arm_j1" type="revolute">
+    <origin xyz="0 -0.16946 0" rpy="0 0 0" />
+    <parent link="arm_center" />
+    <child link="R_arm_l1" />
+    <axis xyz="0 -1 0" />
+    <limit lower="-3.071" upper="3.071" effort="150" velocity="2.4" />
+  </joint>
+  <link name="R_arm_l2">
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="../../meshes/arm_l2-hull-9ecb8f34eb.ply" />
+      </geometry>
+    </collision>
+  </link>
+  <joint name="R_arm_j2" type="revolute">
+    <origin xyz="0.04 -0.06 0.0454" rpy="0 0 0" />
+    <parent link="R_arm_l1" />
+    <child link="R_arm_l2" />
+    <axis xyz="0 0 1" />
+    <limit lower="-1.553" upper="0.453" effort="150" velocity="2.4" />
+  </joint>
+  <link name="R_arm_l3">
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="../../meshes/arm_l3-hull-0806a0148e.ply" />
+      </geometry>
+    </collision>
+  </link>
+  <joint name="R_arm_j3" type="revolute">
+    <origin xyz="0.1644 0 -0.043" rpy="0 0 0" />
+    <parent link="R_arm_l2" />
+    <child link="R_arm_l3" />
+    <axis xyz="1 0 0" />
+    <limit lower="-3.071" upper="3.071" effort="80" velocity="2.7" />
+  </joint>
+  <link name="R_arm_l4">
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="../../meshes/arm_l4-hull-852f11c5be.ply" />
+      </geometry>
+    </collision>
+  </link>
+  <joint name="R_arm_j4" type="revolute">
+    <origin xyz="0.113 0.0433 0.06" rpy="0 0 0" />
+    <parent link="R_arm_l3" />
+    <child link="R_arm_l4" />
+    <axis xyz="0 1 0" />
+    <limit lower="-3.071" upper="0.244" effort="80" velocity="2.7" />
+  </joint>
+  <link name="R_arm_l5">
+    <collision>
+      <origin xyz="0 0 0" rpy="3.14159 0 0" />
+      <geometry>
+        <mesh filename="../../meshes/arm_l5-hull-cb930f3fad.ply" />
+      </geometry>
+    </collision>
+  </link>
+  <joint name="R_arm_j5" type="revolute">
+    <origin xyz="0.1938 -0.0434 -0.04" rpy="0 0 0" />
+    <parent link="R_arm_l4" />
+    <child link="R_arm_l5" />
+    <axis xyz="1 0 0" />
+    <limit lower="-3.071" upper="3.071" effort="25" velocity="2.7" />
+  </joint>
+  <link name="R_arm_l6">
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="../../meshes/R_arm_l6-hull-1493464a15.ply" />
+      </geometry>
+    </collision>
+  </link>
+  <joint name="R_arm_j6" type="revolute">
+    <origin xyz="0.0762 -0.0319 0" rpy="0 0 0" />
+    <parent link="R_arm_l5" />
+    <child link="R_arm_l6" />
+    <axis xyz="0 -1 0" />
+    <limit lower="-1.396" upper="1.396" effort="25" velocity="2.7" />
+  </joint>
+  <link name="R_arm_l7">
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="../../meshes/arm_l7-hull-99e3cc6510.ply" />
+      </geometry>
+    </collision>
+  </link>
+  <joint name="R_arm_j7" type="revolute">
+    <origin xyz="0.065 0.032 0.0319" rpy="0 0 0" />
+    <parent link="R_arm_l6" />
+    <child link="R_arm_l7" />
+    <axis xyz="0 0 1" />
+    <limit lower="-1.117" upper="1.378" effort="25" velocity="2.7" />
+  </joint>
+  <link name="R_arm_l8">
+    <collision>
+      <origin xyz="0 0 0.0302" rpy="0 -1.57079 0" />
+      <geometry>
+        <mesh filename="../../meshes/arm_l8_no_ft-hull-735823476b.ply" />
+      </geometry>
+    </collision>
+  </link>
+  <joint name="R_arm_j8" type="fixed">
+    <origin xyz="0.08577 0 -0.032" rpy="0 1.57079 0" />
+    <parent link="R_arm_l7" />
+    <child link="R_arm_l8" />
+  </joint>
+  <link name="R_ee" />
+  <joint name="R_ee_j0" type="fixed">
+    <origin xyz="0 0 0" rpy="0 0 1.57079" />
+    <parent link="R_arm_l8" />
+    <child link="R_ee" />
+  </joint>
+</robot>

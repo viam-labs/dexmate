@@ -54,6 +54,7 @@ One joint group driven through Dexmate's on-robot motion plugin. Joint units are
 | `variant` | no | Selects bundled kinematics (needed for the frame system and motion service). Default: derived from the `ROBOT_NAME` suffix (`-1` → `vega_1`, `-1p` → `vega_1p`, `-1u` → `vega_1u`); never a `_no_ft` variant, since the force/torque sensor isn't encoded in `ROBOT_NAME`, so set `_no_ft` explicitly. Options: `vega_1`, `vega_1p`, `vega_1p_no_ft`, `vega_1u`, `vega_1u_no_ft`. Use the `_no_ft` variant if the arms have no wrist force/torque sensor (the flange is 30.2 mm shorter). Hand type doesn't matter; arm chains end at the flange (`L_ee`/`R_ee`). Vega-1U has no `torso`. |
 | `kinematics_file` | no | Path to your own URDF; overrides `variant` and `ROBOT_NAME`. |
 | `render_meshes` | no | Serve Dexmate's visual meshes (GLB, ~2–5 MB per arm) through `Get3DModels`, so the 3D scene can draw the real robot instead of collision boxes. The scene shows them alongside the boxes by default; pick only "Model" under arm rendering in its scene settings to hide the boxes. Needs bundled kinematics (`variant` or `ROBOT_NAME`). Default `false`. |
+| `collision` | no | `boxes` (default): one box per link around Dexmate's collision spheres; fastest planning. `meshes`: Dexmate's convex collision meshes, simplified into hulls that are guaranteed to contain the originals (~10% larger, about 1,000–7,000 triangles per arm); tighter clearances, slower planning. Needs bundled kinematics. |
 
 `move_to_position` / `get_end_position` are not implemented; use the motion service.
 
@@ -68,8 +69,9 @@ camera ones against Dexmate's optical-frame convention on hardware.
 
 On Vega-1U the arms and head are fixed to `world` at lift = 0, since `dexcontrol` doesn't expose the lift.
 
-Collision geometry is one oriented box per link that bounds Dexmate's collision spheres
-(Viam can't load their `.glb`/`.obj` meshes). Capsules would fit tighter, but RDK currently
+By default, collision geometry is one oriented box per link that bounds Dexmate's collision
+spheres. Set `collision: meshes` for hulls of Dexmate's convex collision meshes instead
+(Viam can't load their `.obj` files directly, so the extractor converts them to PLY). Capsules would fit tighter, but RDK currently
 mis-reads rotated capsules from URDF ([rdk#6768](https://github.com/viamrobotics/rdk/issues/6768)).
 
 ### `devrel:viam-dexmate:base`

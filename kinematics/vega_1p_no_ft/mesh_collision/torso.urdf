@@ -1,0 +1,54 @@
+<robot name="vega_1p_no_ft_torso">
+  <link name="base" />
+  <link name="torso_l1">
+    <collision>
+      <origin xyz="0 0.08 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="../../meshes/torso_l1-hull-c49dd0661c.ply" />
+      </geometry>
+    </collision>
+  </link>
+  <joint name="torso_j1" type="revolute">
+    <origin xyz="-0.235 0.00 0.248" rpy="0 0 0" />
+    <parent link="base" />
+    <child link="torso_l1" />
+    <axis xyz="0 -1 0" />
+    <limit lower="0" upper="1.570" effort="700" velocity="0.9" />
+  </joint>
+  <link name="torso_l2">
+    <collision>
+      <origin xyz="0 0.02 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="../../meshes/torso_l2-hull-6ccd73cd23.ply" />
+      </geometry>
+    </collision>
+  </link>
+  <joint name="torso_j2" type="revolute">
+    <origin xyz="0.396 0.00 0.082" rpy="0 0 0" />
+    <parent link="torso_l1" />
+    <child link="torso_l2" />
+    <axis xyz="0 1 0" />
+    <limit lower="0" upper="3.141" effort="380" velocity="0.9" />
+  </joint>
+  <link name="torso_l3">
+    <collision>
+      <origin xyz="0 0.0775 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="../../meshes/torso_l3-hull-444ca56a8c.ply" />
+      </geometry>
+    </collision>
+  </link>
+  <joint name="torso_j3" type="revolute">
+    <origin xyz="-0.40718 0 0.09764" rpy="0 0 0" />
+    <parent link="torso_l2" />
+    <child link="torso_l3" />
+    <axis xyz="0 -1 0" />
+    <limit lower="-1.570" upper="1.570" effort="380" velocity="0.9" />
+  </joint>
+  <link name="arm_center" />
+  <joint name="arm_center_j0" type="fixed">
+    <origin xyz="-0.05908 0 0.44528" rpy="0 0 0" />
+    <parent link="torso_l3" />
+    <child link="arm_center" />
+  </joint>
+</robot>

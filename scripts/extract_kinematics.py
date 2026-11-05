@@ -8,6 +8,10 @@ the chains and the cameras/lidars together.
 Collision: dexmate meshes are .glb/.obj (Viam reads .stl/.ply only), so each
 link's collision spheres are bounded by one oriented box.
 
+Mesh collision: mesh_collision/<component>.urdf uses Dexmate's convex collision
+meshes instead, each convex piece simplified to a conservative hull of at most
+HULL_FACES faces (grown until it contains the original), stored as PLY.
+
 Visuals: visuals.json maps each chain link to its GLB in kinematics/meshes/ (shared
 across variants) and the matrix placing it relative to the link's collision
 geometry, which is where Viam's 3D scene anchors an arm's Get3DModels meshes.
@@ -16,6 +20,7 @@ geometry, which is where Viam's 3D scene anchors an arm's Get3DModels meshes.
 """
 
 import copy
+import functools
 import hashlib
 import json
 import shutil
@@ -26,6 +31,8 @@ import numpy as np
 from viam.spatialmath import AxisAngle, EulerAngles, Quaternion, RotationMatrix
 
 OUT = Path(__file__).parents[1] / "kinematics"
+# ponytail: one face budget per convex piece (~10% volume growth); raise it for tighter collisions, at planning cost.
+HULL_FACES = 64
 # component -> (chain root link, chain tip link). Tips match dexcontrol joint groups.
 CHAINS = {
     "torso": (None, "arm_center"),  # None = robot root link
@@ -148,17 +155,58 @@ def link_collision(sphere_link):
     return col
 
 
+def conservative_hull(points: np.ndarray, faces: int = HULL_FACES):
+    """Convex hull of `points` with about `faces` faces that still contains every point."""
+    import trimesh
+    from scipy.spatial import HalfspaceIntersection
+
+    hull = trimesh.convex.convex_hull(points)
+    if len(hull.faces) <= faces:
+        return hull
+    simple = hull.simplify_quadric_decimation(face_count=faces).convex_hull
+    # Decimation cuts corners. Push each face plane out just far enough to cover every
+    # original point, then rebuild the polytope from those planes: contained by construction.
+    n = simple.face_normals
+    # +1 µm so rounding in the plane intersection can't leave a point just outside.
+    d = np.maximum(np.einsum("ij,ij->i", n, simple.triangles[:, 0]), (points @ n.T).max(0)) + 1e-6
+    corners = HalfspaceIntersection(np.c_[n, -d], points.mean(0)).intersections
+    return trimesh.convex.convex_hull(corners)
+
+
+def mesh_collision(link_el, urdf_dir: Path, meshes_out: Path, rel: str):
+    """<collision> with Dexmate's collision mesh as conservative convex hulls (PLY), or None."""
+    import trimesh
+
+    cols = link_el.findall("collision")
+    if not cols:
+        return None
+    if len(cols) > 1:
+        raise ValueError(f"{link_el.get('name')}: {len(cols)} collisions; only one per link is supported")
+    src = (urdf_dir / cols[0].find("geometry/mesh").get("filename")).resolve()
+    pieces = trimesh.load(src, force="mesh").split(only_watertight=False)
+    hulls = trimesh.util.concatenate([conservative_hull(p.vertices) for p in pieces])
+    data = trimesh.exchange.ply.export_ply(hulls, encoding="ascii")  # RDK reads ASCII PLY only
+    name = f"{src.stem}-hull-{hashlib.sha256(data).hexdigest()[:10]}.ply"
+    meshes_out.mkdir(parents=True, exist_ok=True)
+    (meshes_out / name).write_bytes(data)
+    col = ET.Element("collision")
+    col.append(copy.deepcopy(cols[0].find("origin")) if cols[0].find("origin") is not None else ET.Element("origin", xyz="0 0 0", rpy="0 0 0"))
+    ET.SubElement(ET.SubElement(col, "geometry"), "mesh", filename=f"{rel}/{name}")
+    return col
+
+
 def _fmt(v):
     return " ".join(f"{float(x):.6g}" for x in v)
 
 
-def chain_urdf(robot: Robot, spheres: Robot, name, root, tip):
+def chain_urdf(robot: Robot, collision, name, root, tip):
+    """Serial-chain URDF; `collision(link) -> <collision> | None` supplies each link's geometry."""
     out = ET.Element("robot", name=name)
     ET.SubElement(out, "link", name=root)  # root geometry belongs to the parent component
     for j in robot.chain(root, tip):
         child = j.find("child").get("link")
         link = ET.SubElement(out, "link", name=child)
-        col = link_collision(spheres.links.get(child))
+        col = collision(child)
         if col is not None:
             link.append(col)
         j = copy.deepcopy(j)
@@ -169,8 +217,8 @@ def chain_urdf(robot: Robot, spheres: Robot, name, root, tip):
     return ET.tostring(out, encoding="unicode") + "\n"
 
 
-def chain_visuals(robot: Robot, urdf_dir: Path, spheres: Robot, root, tip, meshes_out: Path):
-    """link -> {"mesh": GLB file name, "matrix": row-major 4x4 from collision anchor to visual}."""
+def chain_visuals(robot: Robot, urdf_dir: Path, collisions: dict, root, tip, meshes_out: Path):
+    """link -> {"mesh": GLB name, "matrix": {mode: row-major 4x4 from that mode's collision anchor to the visual}}."""
     out = {}
     for j in robot.chain(root, tip):
         link = j.find("child").get("link")
@@ -192,10 +240,12 @@ def chain_visuals(robot: Robot, urdf_dir: Path, spheres: Robot, root, tip, meshe
         dst = meshes_out / f"{src.stem}-{hashlib.sha256(data).hexdigest()[:10]}.glb"
         meshes_out.mkdir(parents=True, exist_ok=True)
         dst.write_bytes(data)
-        col = link_collision(spheres.links.get(link))
-        anchor = origin_tf(col) if col is not None else np.eye(4)
-        m = np.linalg.inv(anchor) @ origin_tf(vis)
-        out[link] = {"mesh": dst.name, "matrix": [round(float(v), 9) for v in m.flatten()]}
+        matrix = {}
+        for mode, collision in collisions.items():
+            col = collision(link)
+            anchor = origin_tf(col) if col is not None else np.eye(4)
+            matrix[mode] = [round(float(v), 9) for v in (np.linalg.inv(anchor) @ origin_tf(vis)).flatten()]
+        out[link] = {"mesh": dst.name, "matrix": matrix}
     return out
 
 
@@ -221,9 +271,17 @@ def extract(urdf: Path, sphere_urdf: Path, out: Path, meshes_out: Path | None = 
         if comp == "torso" and not has_torso:
             continue
         root = root or robot.root
-        (out / f"{comp}.urdf").write_text(chain_urdf(robot, spheres, f"{urdf.stem}_{comp}", root, tip))
+        collisions = {
+            "boxes": lambda link: link_collision(spheres.links.get(link)),
+            "meshes": functools.cache(lambda link: mesh_collision(robot.links[link], urdf.parent, meshes_out, "../../meshes")),
+        }
+        (out / f"{comp}.urdf").write_text(chain_urdf(robot, collisions["boxes"], f"{urdf.stem}_{comp}", root, tip))
+        (out / "mesh_collision").mkdir(exist_ok=True)
+        (out / "mesh_collision" / f"{comp}.urdf").write_text(
+            chain_urdf(robot, collisions["meshes"], f"{urdf.stem}_{comp}", root, tip)
+        )
         written.append(comp)
-        visuals[comp] = chain_visuals(robot, urdf.parent, spheres, root, tip, meshes_out)
+        visuals[comp] = chain_visuals(robot, urdf.parent, collisions, root, tip, meshes_out)
         if comp == "torso":
             frames[comp] = pose_cfg("world", np.eye(4))
         elif has_torso:

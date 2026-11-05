@@ -1,0 +1,48 @@
+<robot name="vega_1_head">
+  <link name="arm_center" />
+  <link name="head_l1">
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="../../meshes/head_l1-hull-5279c21c6f.ply" />
+      </geometry>
+    </collision>
+  </link>
+  <joint name="head_j1" type="revolute">
+    <origin xyz="-0.0735 -0.0725 0.014" rpy="0 0 0" />
+    <parent link="arm_center" />
+    <child link="head_l1" />
+    <axis xyz="0 1 0" />
+    <limit lower="-1.483" upper="1.483" effort="6" velocity="3.2" />
+  </joint>
+  <link name="head_l2">
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="../../meshes/head_l2-hull-f1c3fcd793.ply" />
+      </geometry>
+    </collision>
+  </link>
+  <joint name="head_j2" type="revolute">
+    <origin xyz="0 0.0725 -0.0035" rpy="0 0 0" />
+    <parent link="head_l1" />
+    <child link="head_l2" />
+    <axis xyz="0 0 1" />
+    <limit lower="-2.792" upper="2.792" effort="2.5" velocity="3.2" />
+  </joint>
+  <link name="head_l3">
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="../../meshes/head_l3-hull-8b2dac8830.ply" />
+      </geometry>
+    </collision>
+  </link>
+  <joint name="head_j3" type="revolute">
+    <origin xyz="0 0.002 0.0495" rpy="0 0 0" />
+    <parent link="head_l2" />
+    <child link="head_l3" />
+    <axis xyz="0 -1 0" />
+    <limit lower="-1.378" upper="1.483" effort="6" velocity="3.2" />
+  </joint>
+</robot>

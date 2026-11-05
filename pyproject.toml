@@ -12,7 +12,7 @@ dependencies = [
 ]
 
 [dependency-groups]
-dev = ["pytest", "dexmate-urdf"]
+dev = ["pytest", "dexmate-urdf", "trimesh", "scipy", "fast-simplification"]
 
 [tool.uv]
 package = false

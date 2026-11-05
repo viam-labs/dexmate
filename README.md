@@ -10,7 +10,7 @@ Viam module for the [Dexmate Vega](https://dexmate.ai) humanoid, built on Dexmat
 
 viam-server must be able to reach the robot's Zenoh network (on the Vega's Jetson or a
 machine on the same LAN). Dexmate's sensor services (`dexsensor launch --sensor ...`)
-must be running for cameras. Pin `dexcontrol` (`requirements.txt`) to the robot's
+must be running for cameras. Pin `dexcontrol` (in `pyproject.toml`, then `uv lock`) to the robot's
 firmware minor version.
 
 Set the robot identity in the module's `env`:

@@ -380,7 +380,8 @@ def hand_model(robot: Robot, spheres: Robot, side: str, mode: str, meshes_out: P
                                       "offset": float(mimic.get("offset", 0))}
                 else:
                     lim = j.find("limit")
-                    joint.update(min=round(np.degrees(float(lim.get("lower"))), 4), max=round(np.degrees(float(lim.get("upper"))), 4))
+                    # Unrounded: dexcontrol poses sit exactly on these limits.
+                    joint.update(min=float(np.degrees(float(lim.get("lower")))), max=float(np.degrees(float(lim.get("upper")))))
                 joints.append(joint)
                 links.append({"id": child, "parent": name, **pose_json(np.eye(4))})
             else:

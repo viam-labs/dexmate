@@ -100,3 +100,21 @@ def test_robot_name_without_torso_rejected(monkeypatch):
     monkeypatch.setenv("ROBOT_NAME", "dm/vg0123456789-1u")
     with pytest.raises(ValueError, match="vega_1u"):
         make_arm(component="torso")
+
+
+@pytest.mark.parametrize("hand", sorted(KINEMATICS_DIR.glob("*/hand_*.json")), ids=lambda p: f"{p.parent.name}/{p.stem}")
+def test_hand_models_cover_dexcontrol_joints_and_poses(hand):
+    """Every dexcontrol hand joint is a model input, and the open/close poses are within limits."""
+    import json
+
+    from dexbot_utils.configs.components.vega_1.hand import DexSGripperConfig, F5D6HandV1Config
+
+    model = json.loads(hand.read_text())
+    side = "left" if hand.stem.endswith("left") else "right"
+    cfg = (DexSGripperConfig if "gripper" in hand.stem else F5D6HandV1Config)(side=side)
+    assert sorted(model["input_order"]) == sorted(cfg.joints)
+    limits = {j["id"]: (j["min"], j["max"]) for j in model["joints"] if "mimic" not in j}
+    for pose in cfg.pose_pool.values():
+        for name, rad in zip(cfg.joints, pose):
+            lo, hi = limits[name]
+            assert lo - 1e-9 <= np.degrees(rad) <= hi + 1e-9, f"{name} {pose}"

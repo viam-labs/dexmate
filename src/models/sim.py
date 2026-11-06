@@ -59,14 +59,17 @@ class _Arm(_Joints):
 
 
 class _Hand:
-    """Six-joint hand, open at 0 rad and closed at 1 rad. Set `block_at` to put an
-    object in its grip: closing then stops there, as the real joints would stall."""
+    """F5D6 hand with dexcontrol's joint names and open/close poses. Set `block_at` (0..1, the
+    fraction of open->close travel) to put an object in its grip: closing then stalls there."""
+
+    # dexbot_utils F5D6HandV1Config: joint order and pose_pool
+    JOINTS = ("th_j1", "ff_j1", "mf_j1", "rf_j1", "lf_j1", "th_j0")
+    OPEN = (0.1834, 0.2891, 0.2801, 0.284, 0.2811, -0.0158)
+    CLOSE = (-0.1, -1.0946, -1.0844, -1.0154, -1.0118, 0.84)
 
     def __init__(self, side: str):
-        # dexcontrol's F5D6 joint order (dexbot_utils F5D6HandV1Config.joints)
-        self.joint_name = [f"{side}_{j}" for j in ("th_j1", "ff_j1", "mf_j1", "rf_j1", "lf_j1", "th_j0")]
-        n = len(self.joint_name)
-        self._joint_pos_open, self._joint_pos_close = np.zeros(n), np.ones(n)
+        self.joint_name = [f"{side}_{j}" for j in self.JOINTS]
+        self._joint_pos_open, self._joint_pos_close = np.array(self.OPEN), np.array(self.CLOSE)
         self._pos = self._joint_pos_open.copy()
         self.block_at: float | None = None
 
@@ -75,7 +78,10 @@ class _Hand:
 
     def set_joint_pos(self, pos, wait_time=0.0, exit_on_reach=False, **kwargs):
         pos = np.asarray(pos, dtype=float)
-        self._pos = np.minimum(pos, self.block_at) if self.block_at is not None else pos
+        if self.block_at is not None:
+            travel = self._joint_pos_close - self._joint_pos_open
+            pos = self._joint_pos_open + np.minimum((pos - self._joint_pos_open) / travel, self.block_at) * travel
+        self._pos = pos
 
     def open_hand(self, wait_time=0.0, exit_on_reach=False, **kwargs):
         self.set_joint_pos(self._joint_pos_open)
@@ -84,7 +90,8 @@ class _Hand:
         self.set_joint_pos(self._joint_pos_close)
 
     def get_finger_tip_force(self):
-        gripping = self.block_at is not None and np.allclose(self._pos, self.block_at)
+        stalled = self._joint_pos_open + self.block_at * (self._joint_pos_close - self._joint_pos_open) if self.block_at is not None else None
+        gripping = stalled is not None and np.allclose(self._pos, stalled)
         return np.full(5, 2.0 if gripping else 0.0)
 
 

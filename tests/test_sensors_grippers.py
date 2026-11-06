@@ -168,7 +168,7 @@ def test_force_torque_errors_without_sensor(monkeypatch):
 def test_grab_empty_closes_fully_and_holds_nothing():
     g = make(Gripper, hand="left_hand")
     assert run(g.grab()) is False
-    assert run(g.get_current_inputs()) == pytest.approx([1.0] * 6)
+    assert run(g.get_current_inputs()) == pytest.approx(sim._Hand.CLOSE)
     assert not run(g.is_moving())
 
 
@@ -177,7 +177,7 @@ def test_grab_on_object_reports_holding():
     g = make(Gripper, hand="left_hand")
     assert run(g.grab()) is True
     status = run(g.is_holding_something())
-    assert status.meta["max_gap_rad"] == pytest.approx(0.5)
+    assert status.meta["max_gap_rad"] == pytest.approx(0.5 * max(abs(c - o) for c, o in zip(sim._Hand.CLOSE, sim._Hand.OPEN)))
     assert sum(status.meta["finger_tip_force"]) > 0
     run(g.open())
     assert not run(g.is_holding_something()).is_holding_something

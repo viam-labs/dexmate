@@ -261,10 +261,12 @@ def pose_cfg(parent, t):
     q = RotationMatrix(t[:3, :3].flatten()).to_quaternion()
     w, x, y, z = q.w, q.i, q.j, q.k
     mm = t[:3, 3] * 1000
+    # Lowercase quaternion keys: RDK matches either case, but the Viam app's frame editor reads only
+    # lowercase (uppercase loads as identity, and saving the config then wipes the rotation).
     return {
         "parent": parent,
         "translation": {"x": round(mm[0], 3), "y": round(mm[1], 3), "z": round(mm[2], 3)},
-        "orientation": {"type": "quaternion", "value": {"W": round(w, 6), "X": round(x, 6), "Y": round(y, 6), "Z": round(z, 6)}},
+        "orientation": {"type": "quaternion", "value": {"w": round(w, 6), "x": round(x, 6), "y": round(y, 6), "z": round(z, 6)}},
     }
 
 
@@ -314,7 +316,7 @@ def pose_json(t):
     q = RotationMatrix(t[:3, :3].flatten()).to_quaternion()
     return {
         "translation": dict(zip("xyz", (round(float(v) * 1000, 4) for v in t[:3, 3]))),
-        "orientation": {"type": "quaternion", "value": {k: round(float(v), 9) for k, v in zip("WXYZ", (q.w, q.i, q.j, q.k))}},
+        "orientation": {"type": "quaternion", "value": {k: round(float(v), 9) for k, v in zip("wxyz", (q.w, q.i, q.j, q.k))}},
     }
 
 

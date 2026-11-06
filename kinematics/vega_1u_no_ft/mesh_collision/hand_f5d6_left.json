@@ -1,0 +1,935 @@
+{
+ "name": "vega_1u_no_ft_f5d6_left_hand",
+ "kinematic_param_type": "SVA",
+ "output_frames": [
+  "L_hand_base"
+ ],
+ "input_order": [
+  "L_ff_j1",
+  "L_lf_j1",
+  "L_mf_j1",
+  "L_rf_j1",
+  "L_th_j0",
+  "L_th_j1"
+ ],
+ "links": [
+  {
+   "id": "L_hand_base",
+   "parent": "world",
+   "translation": {
+    "x": -3.9,
+    "y": 0.19,
+    "z": 0.14
+   },
+   "orientation": {
+    "type": "quaternion",
+    "value": {
+     "W": 6.711e-06,
+     "X": -0.707106781,
+     "Y": 2.237e-06,
+     "Z": 0.707106781
+    }
+   },
+   "geometry": {
+    "translation": {
+     "x": -11.0,
+     "y": 0.0,
+     "z": -3.75
+    },
+    "orientation": {
+     "type": "quaternion",
+     "value": {
+      "W": 0.707179725,
+      "X": 0.0,
+      "Y": 0.70703383,
+      "Z": 0.0
+     }
+    },
+    "type": "cylinder",
+    "r": 24.5,
+    "l": 22.0
+   }
+  },
+  {
+   "id": "L_th_j0_origin",
+   "parent": "L_hand_base",
+   "translation": {
+    "x": -46.08,
+    "y": 19.84,
+    "z": -26.84
+   },
+   "orientation": {
+    "type": "quaternion",
+    "value": {
+     "W": 0.994021243,
+     "X": -0.000722041,
+     "Y": -0.108985679,
+     "Z": -0.006585487
+    }
+   }
+  },
+  {
+   "id": "L_th_l0",
+   "parent": "L_th_j0",
+   "translation": {
+    "x": 0.0,
+    "y": 0.0,
+    "z": 0.0
+   },
+   "orientation": {
+    "type": "quaternion",
+    "value": {
+     "W": 1.0,
+     "X": 0.0,
+     "Y": 0.0,
+     "Z": 0.0
+    }
+   },
+   "geometry": {
+    "translation": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": -5.8
+    },
+    "orientation": {
+     "type": "quaternion",
+     "value": {
+      "W": 1.327e-06,
+      "X": 1.0,
+      "Y": 0.0,
+      "Z": 0.0
+     }
+    },
+    "type": "mesh",
+    "mesh_content_type": "ply",
+    "mesh_file_path": "../../meshes/th_l0-hull-7dc7a4c946.ply"
+   }
+  },
+  {
+   "id": "L_ff_j1_origin",
+   "parent": "L_hand_base",
+   "translation": {
+    "x": -112.69,
+    "y": 30.67,
+    "z": -1.16
+   },
+   "orientation": {
+    "type": "quaternion",
+    "value": {
+     "W": 0.99818646,
+     "X": -0.04375257,
+     "Y": -0.001810989,
+     "Z": -0.041306464
+    }
+   }
+  },
+  {
+   "id": "L_ff_l1",
+   "parent": "L_ff_j1",
+   "translation": {
+    "x": 0.0,
+    "y": 0.0,
+    "z": 0.0
+   },
+   "orientation": {
+    "type": "quaternion",
+    "value": {
+     "W": 1.0,
+     "X": 0.0,
+     "Y": 0.0,
+     "Z": 0.0
+    }
+   },
+   "geometry": {
+    "translation": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "orientation": {
+     "type": "quaternion",
+     "value": {
+      "W": 1.0,
+      "X": 0.0,
+      "Y": 0.0,
+      "Z": 0.0
+     }
+    },
+    "type": "mesh",
+    "mesh_content_type": "ply",
+    "mesh_file_path": "../../meshes/ff_l1-hull-e960b071f3.ply"
+   }
+  },
+  {
+   "id": "L_mf_j1_origin",
+   "parent": "L_hand_base",
+   "translation": {
+    "x": -115.97,
+    "y": 10.47,
+    "z": 3.14
+   },
+   "orientation": {
+    "type": "quaternion",
+    "value": {
+     "W": 0.999978055,
+     "X": 0.0,
+     "Y": 0.0,
+     "Z": -0.006624952
+    }
+   }
+  },
+  {
+   "id": "L_mf_l1",
+   "parent": "L_mf_j1",
+   "translation": {
+    "x": 0.0,
+    "y": 0.0,
+    "z": 0.0
+   },
+   "orientation": {
+    "type": "quaternion",
+    "value": {
+     "W": 1.0,
+     "X": 0.0,
+     "Y": 0.0,
+     "Z": 0.0
+    }
+   },
+   "geometry": {
+    "translation": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "orientation": {
+     "type": "quaternion",
+     "value": {
+      "W": 1.0,
+      "X": 0.0,
+      "Y": 0.0,
+      "Z": 0.0
+     }
+    },
+    "type": "mesh",
+    "mesh_content_type": "ply",
+    "mesh_file_path": "../../meshes/mf_l1-hull-84c7ab61ad.ply"
+   }
+  },
+  {
+   "id": "L_rf_j1_origin",
+   "parent": "L_hand_base",
+   "translation": {
+    "x": -113.24,
+    "y": -9.37,
+    "z": 2.39
+   },
+   "orientation": {
+    "type": "quaternion",
+    "value": {
+     "W": 0.999599582,
+     "X": 0.0,
+     "Y": 0.0,
+     "Z": 0.028296223
+    }
+   }
+  },
+  {
+   "id": "L_rf_l1",
+   "parent": "L_rf_j1",
+   "translation": {
+    "x": 0.0,
+    "y": 0.0,
+    "z": 0.0
+   },
+   "orientation": {
+    "type": "quaternion",
+    "value": {
+     "W": 1.0,
+     "X": 0.0,
+     "Y": 0.0,
+     "Z": 0.0
+    }
+   },
+   "geometry": {
+    "translation": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "orientation": {
+     "type": "quaternion",
+     "value": {
+      "W": 1.0,
+      "X": 0.0,
+      "Y": 0.0,
+      "Z": 0.0
+     }
+    },
+    "type": "mesh",
+    "mesh_content_type": "ply",
+    "mesh_file_path": "../../meshes/rf_l1-hull-2ea5768122.ply"
+   }
+  },
+  {
+   "id": "L_lf_j1_origin",
+   "parent": "L_hand_base",
+   "translation": {
+    "x": -109.47,
+    "y": -29.64,
+    "z": -0.17
+   },
+   "orientation": {
+    "type": "quaternion",
+    "value": {
+     "W": 0.997297593,
+     "X": 0.043823426,
+     "Y": -0.0025903,
+     "Z": 0.058909319
+    }
+   }
+  },
+  {
+   "id": "L_lf_l1",
+   "parent": "L_lf_j1",
+   "translation": {
+    "x": 0.0,
+    "y": 0.0,
+    "z": 0.0
+   },
+   "orientation": {
+    "type": "quaternion",
+    "value": {
+     "W": 1.0,
+     "X": 0.0,
+     "Y": 0.0,
+     "Z": 0.0
+    }
+   },
+   "geometry": {
+    "translation": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "orientation": {
+     "type": "quaternion",
+     "value": {
+      "W": 1.0,
+      "X": 0.0,
+      "Y": 0.0,
+      "Z": 0.0
+     }
+    },
+    "type": "mesh",
+    "mesh_content_type": "ply",
+    "mesh_file_path": "../../meshes/lf_l1-hull-8550cbe659.ply"
+   }
+  },
+  {
+   "id": "L_th_j1_origin",
+   "parent": "L_th_l0",
+   "translation": {
+    "x": -6.75,
+    "y": 20.98,
+    "z": -2.7
+   },
+   "orientation": {
+    "type": "quaternion",
+    "value": {
+     "W": 0.999979102,
+     "X": 0.0,
+     "Y": 0.0,
+     "Z": 0.006464955
+    }
+   }
+  },
+  {
+   "id": "L_th_l1",
+   "parent": "L_th_j1",
+   "translation": {
+    "x": 0.0,
+    "y": 0.0,
+    "z": 0.0
+   },
+   "orientation": {
+    "type": "quaternion",
+    "value": {
+     "W": 1.0,
+     "X": 0.0,
+     "Y": 0.0,
+     "Z": 0.0
+    }
+   },
+   "geometry": {
+    "translation": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "orientation": {
+     "type": "quaternion",
+     "value": {
+      "W": 0.000796327,
+      "X": 0.0,
+      "Y": 0.0,
+      "Z": 0.999999683
+     }
+    },
+    "type": "mesh",
+    "mesh_content_type": "ply",
+    "mesh_file_path": "../../meshes/th_l1-hull-d78fb92902.ply"
+   }
+  },
+  {
+   "id": "L_ff_j2_origin",
+   "parent": "L_ff_l1",
+   "translation": {
+    "x": -34.06,
+    "y": 0.0,
+    "z": -11.41
+   },
+   "orientation": {
+    "type": "quaternion",
+    "value": {
+     "W": 0.999999999,
+     "X": 0.0,
+     "Y": 0.0,
+     "Z": -5e-05
+    }
+   }
+  },
+  {
+   "id": "L_ff_l2",
+   "parent": "L_ff_j2",
+   "translation": {
+    "x": 0.0,
+    "y": 0.0,
+    "z": 0.0
+   },
+   "orientation": {
+    "type": "quaternion",
+    "value": {
+     "W": 1.0,
+     "X": 0.0,
+     "Y": 0.0,
+     "Z": 0.0
+    }
+   },
+   "geometry": {
+    "translation": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "orientation": {
+     "type": "quaternion",
+     "value": {
+      "W": 1.0,
+      "X": 0.0,
+      "Y": 0.0,
+      "Z": 0.0
+     }
+    },
+    "type": "mesh",
+    "mesh_content_type": "ply",
+    "mesh_file_path": "../../meshes/ff_l2-hull-01d2365c9a.ply"
+   }
+  },
+  {
+   "id": "L_mf_j2_origin",
+   "parent": "L_mf_l1",
+   "translation": {
+    "x": -38.29,
+    "y": 0.0,
+    "z": -14.67
+   },
+   "orientation": {
+    "type": "quaternion",
+    "value": {
+     "W": 1.0,
+     "X": 0.0,
+     "Y": 0.0,
+     "Z": 0.0
+    }
+   }
+  },
+  {
+   "id": "L_mf_l2",
+   "parent": "L_mf_j2",
+   "translation": {
+    "x": 0.0,
+    "y": 0.0,
+    "z": 0.0
+   },
+   "orientation": {
+    "type": "quaternion",
+    "value": {
+     "W": 1.0,
+     "X": 0.0,
+     "Y": 0.0,
+     "Z": 0.0
+    }
+   },
+   "geometry": {
+    "translation": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "orientation": {
+     "type": "quaternion",
+     "value": {
+      "W": 1.0,
+      "X": 0.0,
+      "Y": 0.0,
+      "Z": 0.0
+     }
+    },
+    "type": "mesh",
+    "mesh_content_type": "ply",
+    "mesh_file_path": "../../meshes/mf_l2-hull-2ae008bf27.ply"
+   }
+  },
+  {
+   "id": "L_rf_j2_origin",
+   "parent": "L_rf_l1",
+   "translation": {
+    "x": -33.64,
+    "y": 0.0,
+    "z": -12.58
+   },
+   "orientation": {
+    "type": "quaternion",
+    "value": {
+     "W": 0.999999999,
+     "X": 0.0,
+     "Y": 0.0,
+     "Z": -5e-05
+    }
+   }
+  },
+  {
+   "id": "L_rf_l2",
+   "parent": "L_rf_j2",
+   "translation": {
+    "x": 0.0,
+    "y": 0.0,
+    "z": 0.0
+   },
+   "orientation": {
+    "type": "quaternion",
+    "value": {
+     "W": 1.0,
+     "X": 0.0,
+     "Y": 0.0,
+     "Z": 0.0
+    }
+   },
+   "geometry": {
+    "translation": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "orientation": {
+     "type": "quaternion",
+     "value": {
+      "W": 1.0,
+      "X": 0.0,
+      "Y": 0.0,
+      "Z": 0.0
+     }
+    },
+    "type": "mesh",
+    "mesh_content_type": "ply",
+    "mesh_file_path": "../../meshes/rf_l2-hull-3d898387e9.ply"
+   }
+  },
+  {
+   "id": "L_lf_j2_origin",
+   "parent": "L_lf_l1",
+   "translation": {
+    "x": -29.74,
+    "y": 0.0503,
+    "z": -11.63
+   },
+   "orientation": {
+    "type": "quaternion",
+    "value": {
+     "W": 1.0,
+     "X": 1.0527e-05,
+     "Y": 0.0,
+     "Z": 0.0
+    }
+   }
+  },
+  {
+   "id": "L_lf_l2",
+   "parent": "L_lf_j2",
+   "translation": {
+    "x": 0.0,
+    "y": 0.0,
+    "z": 0.0
+   },
+   "orientation": {
+    "type": "quaternion",
+    "value": {
+     "W": 1.0,
+     "X": 0.0,
+     "Y": 0.0,
+     "Z": 0.0
+    }
+   },
+   "geometry": {
+    "translation": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "orientation": {
+     "type": "quaternion",
+     "value": {
+      "W": 1.0,
+      "X": 0.0,
+      "Y": 0.0,
+      "Z": 0.0
+     }
+    },
+    "type": "mesh",
+    "mesh_content_type": "ply",
+    "mesh_file_path": "../../meshes/lf_l2-hull-7dfe1758ef.ply"
+   }
+  },
+  {
+   "id": "L_th_j2_origin",
+   "parent": "L_th_l1",
+   "translation": {
+    "x": -50.88,
+    "y": 13.01,
+    "z": -2.02
+   },
+   "orientation": {
+    "type": "quaternion",
+    "value": {
+     "W": 1.0,
+     "X": 0.0,
+     "Y": 0.0,
+     "Z": 0.0
+    }
+   }
+  },
+  {
+   "id": "L_th_l2",
+   "parent": "L_th_j2",
+   "translation": {
+    "x": 0.0,
+    "y": 0.0,
+    "z": 0.0
+   },
+   "orientation": {
+    "type": "quaternion",
+    "value": {
+     "W": 1.0,
+     "X": 0.0,
+     "Y": 0.0,
+     "Z": 0.0
+    }
+   },
+   "geometry": {
+    "translation": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 3.8
+    },
+    "orientation": {
+     "type": "quaternion",
+     "value": {
+      "W": 1.327e-06,
+      "X": 0.0,
+      "Y": 0.0,
+      "Z": 1.0
+     }
+    },
+    "type": "mesh",
+    "mesh_content_type": "ply",
+    "mesh_file_path": "../../meshes/th_l2-hull-b7d8cf95f7.ply"
+   }
+  },
+  {
+   "id": "L_ff_tip",
+   "parent": "L_ff_l2",
+   "translation": {
+    "x": -30.0,
+    "y": 0.0,
+    "z": -40.0
+   },
+   "orientation": {
+    "type": "quaternion",
+    "value": {
+     "W": 1.0,
+     "X": 0.0,
+     "Y": 0.0,
+     "Z": 0.0
+    }
+   }
+  },
+  {
+   "id": "L_mf_tip",
+   "parent": "L_mf_l2",
+   "translation": {
+    "x": -30.4,
+    "y": 0.0,
+    "z": -39.7
+   },
+   "orientation": {
+    "type": "quaternion",
+    "value": {
+     "W": 1.0,
+     "X": 0.0,
+     "Y": 0.0,
+     "Z": 0.0
+    }
+   }
+  },
+  {
+   "id": "L_rf_tip",
+   "parent": "L_rf_l2",
+   "translation": {
+    "x": -27.2,
+    "y": 0.0,
+    "z": -42.0
+   },
+   "orientation": {
+    "type": "quaternion",
+    "value": {
+     "W": 1.0,
+     "X": 0.0,
+     "Y": 0.0,
+     "Z": 0.0
+    }
+   }
+  },
+  {
+   "id": "L_lf_tip",
+   "parent": "L_lf_l2",
+   "translation": {
+    "x": -18.2,
+    "y": 0.0,
+    "z": -30.6
+   },
+   "orientation": {
+    "type": "quaternion",
+    "value": {
+     "W": 1.0,
+     "X": 0.0,
+     "Y": 0.0,
+     "Z": 0.0
+    }
+   }
+  },
+  {
+   "id": "L_th_tip",
+   "parent": "L_th_l2",
+   "translation": {
+    "x": -23.0,
+    "y": 15.1,
+    "z": 1.8
+   },
+   "orientation": {
+    "type": "quaternion",
+    "value": {
+     "W": 1.0,
+     "X": 0.0,
+     "Y": 0.0,
+     "Z": 0.0
+    }
+   }
+  },
+  {
+   "id": "L_hand_base_col1",
+   "parent": "L_hand_base",
+   "translation": {
+    "x": 0.0,
+    "y": 0.0,
+    "z": 0.0
+   },
+   "orientation": {
+    "type": "quaternion",
+    "value": {
+     "W": 1.0,
+     "X": 0.0,
+     "Y": 0.0,
+     "Z": 0.0
+    }
+   },
+   "geometry": {
+    "translation": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "orientation": {
+     "type": "quaternion",
+     "value": {
+      "W": 1.0,
+      "X": 0.0,
+      "Y": 0.0,
+      "Z": 0.0
+     }
+    },
+    "type": "mesh",
+    "mesh_content_type": "ply",
+    "mesh_file_path": "../../meshes/L_hand_base-hull-eab5b6f1c6.ply"
+   }
+  }
+ ],
+ "joints": [
+  {
+   "id": "L_th_j0",
+   "type": "revolute",
+   "parent": "L_th_j0_origin",
+   "axis": {
+    "x": -1.0,
+    "y": 0.0,
+    "z": 0.0
+   },
+   "min": -0.9053,
+   "max": 91.9597
+  },
+  {
+   "id": "L_ff_j1",
+   "type": "revolute",
+   "parent": "L_ff_j1_origin",
+   "axis": {
+    "x": 0.0,
+    "y": 1.0,
+    "z": 0.0
+   },
+   "min": -62.716,
+   "max": 16.5642
+  },
+  {
+   "id": "L_mf_j1",
+   "type": "revolute",
+   "parent": "L_mf_j1_origin",
+   "axis": {
+    "x": 0.0,
+    "y": 1.0,
+    "z": 0.0
+   },
+   "min": -62.1315,
+   "max": 16.0485
+  },
+  {
+   "id": "L_rf_j1",
+   "type": "revolute",
+   "parent": "L_rf_j1_origin",
+   "axis": {
+    "x": 0.0,
+    "y": 1.0,
+    "z": 0.0
+   },
+   "min": -58.1781,
+   "max": 16.272
+  },
+  {
+   "id": "L_lf_j1",
+   "type": "revolute",
+   "parent": "L_lf_j1_origin",
+   "axis": {
+    "x": 0.0,
+    "y": 1.0,
+    "z": 0.0
+   },
+   "min": -57.9719,
+   "max": 16.1058
+  },
+  {
+   "id": "L_th_j1",
+   "type": "revolute",
+   "parent": "L_th_j1_origin",
+   "axis": {
+    "x": 0.0,
+    "y": 0.0,
+    "z": -1.0
+   },
+   "min": -19.8702,
+   "max": 10.508
+  },
+  {
+   "id": "L_ff_j2",
+   "type": "revolute",
+   "parent": "L_ff_j2_origin",
+   "axis": {
+    "x": 0.0,
+    "y": 1.0,
+    "z": 0.0
+   },
+   "mimic": {
+    "joint": "L_ff_j1",
+    "multiplier": 1.13028,
+    "offset": -0.00053
+   }
+  },
+  {
+   "id": "L_mf_j2",
+   "type": "revolute",
+   "parent": "L_mf_j2_origin",
+   "axis": {
+    "x": 0.0,
+    "y": 1.0,
+    "z": 0.0
+   },
+   "mimic": {
+    "joint": "L_mf_j1",
+    "multiplier": 1.13311,
+    "offset": -0.00079
+   }
+  },
+  {
+   "id": "L_rf_j2",
+   "type": "revolute",
+   "parent": "L_rf_j2_origin",
+   "axis": {
+    "x": 0.0,
+    "y": 1.0,
+    "z": 0.0
+   },
+   "mimic": {
+    "joint": "L_rf_j1",
+    "multiplier": 1.12935,
+    "offset": 0.00065
+   }
+  },
+  {
+   "id": "L_lf_j2",
+   "type": "revolute",
+   "parent": "L_lf_j2_origin",
+   "axis": {
+    "x": 0.0,
+    "y": 1.0,
+    "z": 0.0
+   },
+   "mimic": {
+    "joint": "L_lf_j1",
+    "multiplier": 1.15037,
+    "offset": 0.00186
+   }
+  },
+  {
+   "id": "L_th_j2",
+   "type": "revolute",
+   "parent": "L_th_j2_origin",
+   "axis": {
+    "x": 0.0,
+    "y": 0.0,
+    "z": -1.0
+   },
+   "mimic": {
+    "joint": "L_th_j1",
+    "multiplier": 1.35316,
+    "offset": 0.00765
+   }
+  }
+ ]
+}

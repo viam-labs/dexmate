@@ -1,12 +1,15 @@
 """Grippers, force/torque, IMU and point clouds, driven through sim.SimRobot."""
 
 import asyncio
+import base64
+import json
 import math
 import struct
 
 import numpy as np
 import pytest
 from viam.proto.app.robot import ComponentConfig
+from viam.proto.common import KinematicsFileFormat
 from viam.spatialmath import Quaternion
 from viam.utils import dict_to_struct
 
@@ -199,3 +202,36 @@ def test_gripper_missing_hand(monkeypatch):
     monkeypatch.setattr(sim.ROBOT, "left_hand", None)
     with pytest.raises(RuntimeError, match="ROBOT_CONFIG"):
         run(make(Gripper, hand="left_hand").open())
+
+
+def test_gripper_kinematics_reorders_inputs(monkeypatch):
+    monkeypatch.setenv("ROBOT_NAME", "dm/vgsim-1p")
+    g = make(Gripper, hand="left_hand")
+    fmt, data = run(g.get_kinematics())
+    model = json.loads(data)
+    assert fmt == KinematicsFileFormat.KINEMATICS_FILE_FORMAT_SVA
+    assert "input_order" not in model and model["output_frames"] == ["L_hand_base"]
+    assert sum("mimic" in j for j in model["joints"]) == 5  # distal joints follow the proximal ones
+    # dexcontrol order is th_j1, ff_j1, mf_j1, rf_j1, lf_j1, th_j0; RDK's is breadth-first by name.
+    sim.ROBOT.left_hand._pos = np.array([1, 2, 3, 4, 5, 6], float)
+    assert run(g.get_current_inputs()) == [2, 5, 3, 4, 6, 1]  # ff, lf, mf, rf, th_j0, th_j1
+    run(g.go_to_inputs([2, 5, 3, 4, 6, 1]))
+    assert sim.ROBOT.left_hand.get_joint_pos().tolist() == [1, 2, 3, 4, 5, 6]
+
+
+def test_gripper_mesh_collision_inlines_meshes(monkeypatch):
+    monkeypatch.setenv("ROBOT_NAME", "dm/vgsim-1p")
+    model = json.loads(run(make(Gripper, hand="right_hand", collision="meshes").get_kinematics())[1])
+    meshes = [l["geometry"] for l in model["links"] if l.get("geometry", {}).get("type") == "mesh"]
+    assert meshes and all(base64.b64decode(m["mesh_data"]).startswith(b"ply") for m in meshes)
+
+
+def test_gripper_without_variant_keeps_dexcontrol_order(monkeypatch):
+    monkeypatch.delenv("ROBOT_NAME", raising=False)
+    g = make(Gripper, hand="left_hand")
+    sim.ROBOT.left_hand._pos = np.array([1, 2, 3, 4, 5, 6], float)
+    assert run(g.get_current_inputs()) == [1, 2, 3, 4, 5, 6]
+    with pytest.raises(ValueError, match="variant"):
+        run(g.get_kinematics())
+    with pytest.raises(ValueError, match="meshes"):
+        make(Gripper, hand="left_hand", collision="meshes")

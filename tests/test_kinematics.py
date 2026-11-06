@@ -23,6 +23,7 @@ def test_bundled_kinematics_match_installed_dexmate_urdf(tmp_path):
     """Fails when dexmate-urdf is bumped without rerunning the extractor."""
     for urdf, spheres in ek.variants(PKG):
         ek.extract(urdf, spheres, tmp_path / urdf.stem)
+        ek.extract_hands(urdf, tmp_path / urdf.stem, tmp_path / "meshes")
     fresh = sorted(p.relative_to(tmp_path) for p in tmp_path.rglob("*.*"))
     assert fresh == sorted(p.relative_to(KINEMATICS_DIR) for p in KINEMATICS_DIR.rglob("*.*"))
     for rel in fresh:

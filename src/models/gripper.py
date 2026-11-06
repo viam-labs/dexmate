@@ -1,4 +1,6 @@
 import asyncio
+import base64
+import json
 from typing import Any, ClassVar, Dict, List, Mapping, Optional, Sequence, Tuple
 
 import numpy as np
@@ -6,13 +8,14 @@ from typing_extensions import Self
 from viam.components import KinematicsReturn
 from viam.components.gripper import Gripper as GripperBase
 from viam.proto.app.robot import ComponentConfig
-from viam.proto.common import Geometry, ResourceName
+from viam.proto.common import Geometry, KinematicsFileFormat, ResourceName
 from viam.resource.base import ResourceBase
 from viam.resource.easy_resource import EasyResource
 from viam.resource.types import Model, ModelFamily
 from viam.utils import ValueTypes, struct_to_dict
 
 from . import vega
+from .arm import COLLISION_MODES, KINEMATICS_DIR, VARIANTS, variant_from_robot_name
 
 HANDS = ("left_hand", "right_hand")
 
@@ -21,7 +24,9 @@ class Gripper(GripperBase, EasyResource):
     """A Vega end effector: the DexGripper or an F5D6 dexterous hand.
 
     `hand`: left_hand or right_hand (present when the robot has that end effector installed).
-    Open/Grab use dexcontrol's open_hand/close_hand. Inputs are the raw joint positions (radians).
+    Open/Grab use dexcontrol's open_hand/close_hand. Inputs are joint positions (radians); with
+    bundled kinematics (`variant` or ROBOT_NAME) they're in the kinematic model's joint order,
+    otherwise dexcontrol's. `collision`: boxes (default) or meshes, as for the arm.
     """
 
     MODEL: ClassVar[Model] = Model(ModelFamily("viam-labs", "dexmate"), "gripper")
@@ -30,8 +35,11 @@ class Gripper(GripperBase, EasyResource):
     move_time_s: float
     holding_tolerance_rad: float
     holding_force: float
+    variant: str | None
+    collision: str
     _closed = False
     _moving = 0
+    _model: dict | None = None
 
     @classmethod
     def new(cls, config: ComponentConfig, dependencies: Mapping[ResourceName, ResourceBase]) -> Self:
@@ -48,6 +56,13 @@ class Gripper(GripperBase, EasyResource):
         for key in ("move_time_s", "holding_tolerance_rad", "holding_force"):
             if a.get(key) is not None and float(a[key]) <= 0:
                 raise ValueError(f"`{key}` must be positive")
+        variant = a.get("variant") or variant_from_robot_name()
+        if a.get("variant") is not None and a["variant"] not in VARIANTS:
+            raise ValueError(f"`variant` must be one of {VARIANTS}")
+        if a.get("collision", "boxes") not in COLLISION_MODES:
+            raise ValueError(f"`collision` must be one of {COLLISION_MODES}")
+        if a.get("collision") == "meshes" and variant is None:
+            raise ValueError("`collision: meshes` needs bundled kinematics: set `variant` (or ROBOT_NAME)")
         return [], []
 
     def reconfigure(self, config: ComponentConfig, dependencies: Mapping[ResourceName, ResourceBase]):
@@ -57,6 +72,9 @@ class Gripper(GripperBase, EasyResource):
         self.move_time_s = float(a.get("move_time_s", 2.0))  # longest open/close wait
         self.holding_tolerance_rad = float(a.get("holding_tolerance_rad", 0.1))  # stall short of closed = holding
         self.holding_force = float(a.get("holding_force", 1.0))  # summed fingertip force (F5D6 V2)
+        self.variant = a.get("variant") or variant_from_robot_name()
+        self.collision = a.get("collision", "boxes")
+        self._model = None
 
     def _part(self):
         part = getattr(vega.get(), self.hand, None)
@@ -115,11 +133,42 @@ class Gripper(GripperBase, EasyResource):
     async def is_moving(self) -> bool:
         return self._moving > 0
 
+    def _load_model(self) -> dict | None:
+        """The bundled model JSON for the installed end effector (F5D6 hand or DexGripper), or None."""
+        if self._model is None and self.variant is not None:
+            names = self._part().joint_name
+            kind = "gripper" if any("gripper" in n for n in names) else "f5d6"
+            sub = "mesh_collision/" if self.collision == "meshes" else ""
+            path = KINEMATICS_DIR / self.variant / f"{sub}hand_{kind}_{self.hand.split('_')[0]}.json"
+            model = json.loads(path.read_text())
+            for link in model["links"]:  # viam-server can't read the module's disk: inline each mesh
+                g = link.get("geometry", {})
+                if "mesh_file_path" in g:
+                    g["mesh_data"] = base64.b64encode((path.parent / g["mesh_file_path"]).read_bytes()).decode()
+            self._model = model
+        return self._model
+
+    def _order(self) -> list[str] | None:
+        model = self._load_model()
+        return model["input_order"] if model else None
+
     async def get_current_inputs(self, *, extra=None, timeout=None, **kwargs) -> List[float]:
-        return [float(v) for v in await asyncio.to_thread(lambda: self._part().get_joint_pos())]
+        def read():
+            part, order = self._part(), self._order()
+            pos = [float(v) for v in part.get_joint_pos()]
+            return [dict(zip(part.joint_name, pos))[n] for n in order] if order else pos
+
+        return await asyncio.to_thread(read)
 
     async def go_to_inputs(self, values: List[float], *, extra=None, timeout=None, **kwargs):
-        target = np.asarray(values, dtype=float)
+        def to_dexcontrol():
+            part, order = self._part(), self._order()
+            if order is None:
+                return np.asarray(values, dtype=float)
+            by_name = dict(zip(order, values))
+            return np.asarray([by_name[n] for n in part.joint_name], dtype=float)
+
+        target = await asyncio.to_thread(to_dexcontrol)
         self._moving += 1
         try:
             await asyncio.to_thread(
@@ -129,7 +178,11 @@ class Gripper(GripperBase, EasyResource):
             self._moving -= 1
 
     async def get_kinematics(self, *, extra=None, timeout=None, **kwargs) -> KinematicsReturn:
-        raise NotImplementedError("no bundled kinematics for Vega end effectors yet")
+        model = await asyncio.to_thread(self._load_model)
+        if model is None:
+            raise ValueError(f"set `variant` (one of {VARIANTS}) or ROBOT_NAME for end effector kinematics")
+        sva = {k: v for k, v in model.items() if k != "input_order"}  # not part of RDK's format
+        return KinematicsFileFormat.KINEMATICS_FILE_FORMAT_SVA, json.dumps(sva).encode()
 
     async def get_geometries(self, *, extra: Optional[Dict[str, Any]] = None, timeout: Optional[float] = None) -> Sequence[Geometry]:
         return []

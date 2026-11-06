@@ -94,6 +94,7 @@ def joint_tf(joint, q):
 
 class Robot:
     def __init__(self, urdf: Path):
+        self.urdf_dir = urdf.parent
         self.root_el = ET.parse(urdf).getroot()
         self.joints = self.root_el.findall("joint")
         self.by_child = {j.find("child").get("link"): j for j in self.joints}
@@ -173,22 +174,29 @@ def conservative_hull(points: np.ndarray, faces: int = HULL_FACES):
     return trimesh.convex.convex_hull(corners)
 
 
-def mesh_collision(link_el, urdf_dir: Path, meshes_out: Path, rel: str):
-    """<collision> with Dexmate's collision mesh as conservative convex hulls (PLY), or None."""
+def hull_ply(src: Path, meshes_out: Path) -> str:
+    """Write a collision mesh's conservative convex hulls as ASCII PLY in meshes_out; return the file name."""
     import trimesh
 
+    pieces = trimesh.load(src, force="mesh").split(only_watertight=False)
+    # Flat slivers (fewer than 4 non-coplanar points) have no volume to collide with.
+    solid = [p.vertices for p in pieces if len(p.vertices) >= 4 and np.linalg.matrix_rank(p.vertices - p.vertices.mean(0), tol=1e-7) == 3]
+    hulls = trimesh.util.concatenate([conservative_hull(v) for v in solid])
+    data = trimesh.exchange.ply.export_ply(hulls, encoding="ascii")  # RDK reads ASCII PLY only
+    name = f"{src.stem}-hull-{hashlib.sha256(data).hexdigest()[:10]}.ply"
+    meshes_out.mkdir(parents=True, exist_ok=True)
+    (meshes_out / name).write_bytes(data)
+    return name
+
+
+def mesh_collision(link_el, urdf_dir: Path, meshes_out: Path, rel: str):
+    """<collision> with Dexmate's collision mesh as conservative convex hulls (PLY), or None."""
     cols = link_el.findall("collision")
     if not cols:
         return None
     if len(cols) > 1:
         raise ValueError(f"{link_el.get('name')}: {len(cols)} collisions; only one per link is supported")
-    src = (urdf_dir / cols[0].find("geometry/mesh").get("filename")).resolve()
-    pieces = trimesh.load(src, force="mesh").split(only_watertight=False)
-    hulls = trimesh.util.concatenate([conservative_hull(p.vertices) for p in pieces])
-    data = trimesh.exchange.ply.export_ply(hulls, encoding="ascii")  # RDK reads ASCII PLY only
-    name = f"{src.stem}-hull-{hashlib.sha256(data).hexdigest()[:10]}.ply"
-    meshes_out.mkdir(parents=True, exist_ok=True)
-    (meshes_out / name).write_bytes(data)
+    name = hull_ply((urdf_dir / cols[0].find("geometry/mesh").get("filename")).resolve(), meshes_out)
     col = ET.Element("collision")
     col.append(copy.deepcopy(cols[0].find("origin")) if cols[0].find("origin") is not None else ET.Element("origin", xyz="0 0 0", rpy="0 0 0"))
     ET.SubElement(ET.SubElement(col, "geometry"), "mesh", filename=f"{rel}/{name}")
@@ -301,6 +309,123 @@ def extract(urdf: Path, sphere_urdf: Path, out: Path, meshes_out: Path | None = 
     return written
 
 
+def pose_json(t):
+    """4x4 (meters) -> Viam model JSON translation (mm) + quaternion orientation."""
+    q = RotationMatrix(t[:3, :3].flatten()).to_quaternion()
+    return {
+        "translation": dict(zip("xyz", (round(float(v) * 1000, 4) for v in t[:3, 3]))),
+        "orientation": {"type": "quaternion", "value": {k: round(float(v), 9) for k, v in zip("WXYZ", (q.w, q.i, q.j, q.k))}},
+    }
+
+
+def geometry_json(col, urdf_dir: Path, meshes_out: Path, rel: str):
+    """One URDF <collision> -> Viam geometry config. Meshes become hull PLYs referenced by
+    mesh_file_path; the gripper inlines their bytes (mesh_data) when it serves the model."""
+    g = col.find("geometry")[0]
+    out = pose_json(origin_tf(col))
+    if g.tag == "box":
+        out.update(type="box", **dict(zip("xyz", (round(v * 1000, 4) for v in _floats(g.get("size"))))))
+    elif g.tag == "sphere":
+        out.update(type="sphere", r=round(float(g.get("radius")) * 1000, 4))
+    elif g.tag == "cylinder":
+        out.update(type="cylinder", r=round(float(g.get("radius")) * 1000, 4), l=round(float(g.get("length")) * 1000, 4))
+    elif g.tag == "mesh":
+        name = hull_ply((urdf_dir / g.get("filename")).resolve(), meshes_out)
+        out.update(type="mesh", mesh_content_type="ply", mesh_file_path=f"{rel}/{name}")
+    else:
+        raise ValueError(f"unsupported collision geometry {g.tag}")
+    return out
+
+
+def input_order(links, joints):
+    """Driven joints in RDK's input order: breadth-first from world, siblings by name, mimics skipped."""
+    children = {}
+    for f in links + joints:
+        children.setdefault(f["parent"], []).append(f["id"])
+    driven = {j["id"] for j in joints if "mimic" not in j}
+    order, queue = [], ["world"]
+    while queue:
+        cur = queue.pop(0)
+        if cur in driven:
+            order.append(cur)
+        queue += sorted(children.get(cur, []))
+    return order
+
+
+def hand_model(robot: Robot, spheres: Robot, side: str, mode: str, meshes_out: Path, rel: str):
+    """Viam model JSON for one end effector: the subtree under <S>_hand_mount, rooted at the arm's
+    <S>_ee frame (where the gripper component's frame sits). Mimic joints follow their source, so
+    the inputs are the dexcontrol joints; `input_order` (not part of the RDK format) lists them."""
+    s = side[0].upper()
+    mount = next(j for j in robot.joints if j.get("name") == f"{s}_hand_mount")
+    base = mount.find("child").get("link")
+    to_ee = robot.fk(mount.find("parent").get("link"), f"{s}_ee")
+    links = [{"id": base, "parent": "world", **pose_json(np.linalg.inv(to_ee) @ origin_tf(mount))}]
+    joints, todo = [], [base]
+    while todo:
+        parent = todo.pop(0)
+        for j in robot.joints:
+            if j.find("parent").get("link") != parent:
+                continue
+            child, name = j.find("child").get("link"), j.get("name")
+            if j.get("type") == "fixed":
+                links.append({"id": child, "parent": parent, **pose_json(origin_tf(j))})
+            elif j.get("type") == "revolute":
+                links.append({"id": f"{name}_origin", "parent": parent, **pose_json(origin_tf(j))})
+                joint = {"id": name, "type": "revolute", "parent": f"{name}_origin",
+                         "axis": dict(zip("xyz", (float(v) for v in _floats(j.find("axis").get("xyz")))))}
+                mimic = j.find("mimic")
+                if mimic is not None:
+                    joint["mimic"] = {"joint": mimic.get("joint"), "multiplier": float(mimic.get("multiplier", 1)),
+                                      "offset": float(mimic.get("offset", 0))}
+                else:
+                    lim = j.find("limit")
+                    joint.update(min=round(np.degrees(float(lim.get("lower"))), 4), max=round(np.degrees(float(lim.get("upper"))), 4))
+                joints.append(joint)
+                links.append({"id": child, "parent": name, **pose_json(np.eye(4))})
+            else:
+                raise ValueError(f"{name}: unsupported joint type {j.get('type')}")
+            todo.append(child)
+    by_id = {l["id"]: l for l in links}
+    for link in [l for l in links if l["id"] in robot.links]:
+        if mode == "boxes":
+            col = link_collision(spheres.links.get(link["id"]))
+            cols = [] if col is None else [col]
+        else:
+            cols = robot.links[link["id"]].findall("collision")
+        geoms = [geometry_json(c, robot.urdf_dir, meshes_out, rel) for c in cols]
+        if geoms:
+            by_id[link["id"]]["geometry"] = geoms[0]
+        for i, g in enumerate(geoms[1:], 1):  # one geometry per frame: extras ride on child frames
+            links.append({"id": f"{link['id']}_col{i}", "parent": link["id"], **pose_json(np.eye(4)), "geometry": g})
+    return {
+        "name": f"{robot.root_el.get('name')}_{side}_hand",
+        "kinematic_param_type": "SVA",
+        # ponytail: tool frame = hand base (the mount). Add a calibrated TCP offset once grasps are tuned on hardware.
+        "output_frames": [base],
+        "input_order": input_order(links, joints),
+        "links": links,
+        "joints": joints,
+    }
+
+
+def extract_hands(urdf: Path, out: Path, meshes_out: Path):
+    """hand_<type>_<side>.json (+ mesh_collision/) for each end effector URDF next to an arm-only one."""
+    written = []
+    for kind in ("f5d6", "gripper"):
+        hand_urdf = urdf.with_name(f"{urdf.stem}_{kind}.urdf")
+        if not hand_urdf.is_file():
+            continue
+        robot = Robot(hand_urdf)
+        spheres = Robot(hand_urdf.with_name(f"{hand_urdf.stem}_collision_spheres.collision.urdf"))
+        for side in ("left", "right"):
+            for mode, sub, rel in (("boxes", "", ""), ("meshes", "mesh_collision/", "../../meshes")):
+                model = hand_model(robot, spheres, side, mode, meshes_out, rel)
+                (out / f"{sub}hand_{kind}_{side}.json").write_text(json.dumps(model, indent=1) + "\n")
+            written.append(f"hand_{kind}_{side}")
+    return written
+
+
 def variants(pkg_robots: Path):
     """Arm-only URDFs (no hand/gripper): the chain tip is L_ee/R_ee either way."""
     for urdf in sorted(pkg_robots.glob("humanoid/*/*.urdf")):
@@ -315,7 +440,7 @@ def main():
     pkg = Path(dexmate_urdf.__file__).parent / "robots"
     shutil.rmtree(OUT, ignore_errors=True)
     for urdf, sphere_urdf in variants(pkg):
-        print(urdf.stem, extract(urdf, sphere_urdf, OUT / urdf.stem))
+        print(urdf.stem, extract(urdf, sphere_urdf, OUT / urdf.stem), extract_hands(urdf, OUT / urdf.stem, OUT / "meshes"))
 
 
 if __name__ == "__main__":

@@ -62,7 +62,10 @@ class _Hand:
     """Six-joint hand, open at 0 rad and closed at 1 rad. Set `block_at` to put an
     object in its grip: closing then stops there, as the real joints would stall."""
 
-    def __init__(self, n: int = 6):
+    def __init__(self, side: str):
+        # dexcontrol's F5D6 joint order (dexbot_utils F5D6HandV1Config.joints)
+        self.joint_name = [f"{side}_{j}" for j in ("th_j1", "ff_j1", "mf_j1", "rf_j1", "lf_j1", "th_j0")]
+        n = len(self.joint_name)
         self._joint_pos_open, self._joint_pos_close = np.zeros(n), np.ones(n)
         self._pos = self._joint_pos_open.copy()
         self.block_at: float | None = None
@@ -151,7 +154,7 @@ class _Sensors:
 class SimRobot:
     def __init__(self):
         self.left_arm, self.right_arm = _Arm(), _Arm()
-        self.left_hand, self.right_hand = _Hand(), _Hand()
+        self.left_hand, self.right_hand = _Hand("L"), _Hand("R")
         self.head, self.torso = _Joints(3), _Joints(3)
         self.chassis = _Chassis()
         self.sensors = _Sensors()

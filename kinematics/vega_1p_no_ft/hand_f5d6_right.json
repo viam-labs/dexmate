@@ -1,0 +1,908 @@
+{
+ "name": "vega_1p_no_ft_f5d6_right_hand",
+ "kinematic_param_type": "SVA",
+ "output_frames": [
+  "R_hand_base"
+ ],
+ "input_order": [
+  "R_ff_j1",
+  "R_lf_j1",
+  "R_mf_j1",
+  "R_rf_j1",
+  "R_th_j0",
+  "R_th_j1"
+ ],
+ "links": [
+  {
+   "id": "R_hand_base",
+   "parent": "world",
+   "translation": {
+    "x": -3.9,
+    "y": -0.19,
+    "z": 0.14
+   },
+   "orientation": {
+    "type": "quaternion",
+    "value": {
+     "W": -6.711e-06,
+     "X": -0.707106781,
+     "Y": -2.237e-06,
+     "Z": 0.707106781
+    }
+   },
+   "geometry": {
+    "translation": {
+     "x": -59.5139,
+     "y": -4.1644,
+     "z": -5.4443
+    },
+    "orientation": {
+     "type": "quaternion",
+     "value": {
+      "W": 0.090556583,
+      "X": -0.658316096,
+      "Y": 0.101834355,
+      "Z": 0.740303443
+     }
+    },
+    "type": "box",
+    "x": 97.1678,
+    "y": 111.049,
+    "z": 151.888
+   }
+  },
+  {
+   "id": "R_th_j0_origin",
+   "parent": "R_hand_base",
+   "translation": {
+    "x": -46.08,
+    "y": -19.84,
+    "z": -26.87
+   },
+   "orientation": {
+    "type": "quaternion",
+    "value": {
+     "W": 0.994021256,
+     "X": -0.00070438,
+     "Y": -0.108995017,
+     "Z": 0.006429086
+    }
+   }
+  },
+  {
+   "id": "R_th_l0",
+   "parent": "R_th_j0",
+   "translation": {
+    "x": 0.0,
+    "y": 0.0,
+    "z": 0.0
+   },
+   "orientation": {
+    "type": "quaternion",
+    "value": {
+     "W": 1.0,
+     "X": 0.0,
+     "Y": 0.0,
+     "Z": 0.0
+    }
+   },
+   "geometry": {
+    "translation": {
+     "x": -5.3176,
+     "y": -9.9541,
+     "z": -1.5878
+    },
+    "orientation": {
+     "type": "quaternion",
+     "value": {
+      "W": 0.656721816,
+      "X": 0.262137948,
+      "Y": -0.676221904,
+      "Z": 0.206698062
+     }
+    },
+    "type": "box",
+    "x": 28.7474,
+    "y": 30.612,
+    "z": 47.2354
+   }
+  },
+  {
+   "id": "R_ff_j1_origin",
+   "parent": "R_hand_base",
+   "translation": {
+    "x": -112.69,
+    "y": -30.66,
+    "z": -1.19
+   },
+   "orientation": {
+    "type": "quaternion",
+    "value": {
+     "W": 0.99818646,
+     "X": 0.04375257,
+     "Y": -0.001810989,
+     "Z": 0.041306464
+    }
+   }
+  },
+  {
+   "id": "R_ff_l1",
+   "parent": "R_ff_j1",
+   "translation": {
+    "x": 0.0,
+    "y": 0.0,
+    "z": 0.0
+   },
+   "orientation": {
+    "type": "quaternion",
+    "value": {
+     "W": 1.0,
+     "X": 0.0,
+     "Y": 0.0,
+     "Z": 0.0
+    }
+   },
+   "geometry": {
+    "translation": {
+     "x": -15.3529,
+     "y": 0.0,
+     "z": -8.711
+    },
+    "orientation": {
+     "type": "quaternion",
+     "value": {
+      "W": -1.029e-06,
+      "X": 0.775436647,
+      "Y": -8.38e-07,
+      "Z": -0.631425377
+     }
+    },
+    "type": "box",
+    "x": 21.452,
+    "y": 20.0,
+    "z": 49.6142
+   }
+  },
+  {
+   "id": "R_mf_j1_origin",
+   "parent": "R_hand_base",
+   "translation": {
+    "x": -115.97,
+    "y": -10.47,
+    "z": 3.12
+   },
+   "orientation": {
+    "type": "quaternion",
+    "value": {
+     "W": 0.999978055,
+     "X": 0.0,
+     "Y": 0.0,
+     "Z": 0.006624952
+    }
+   }
+  },
+  {
+   "id": "R_mf_l1",
+   "parent": "R_mf_j1",
+   "translation": {
+    "x": 0.0,
+    "y": 0.0,
+    "z": 0.0
+   },
+   "orientation": {
+    "type": "quaternion",
+    "value": {
+     "W": 1.0,
+     "X": 0.0,
+     "Y": 0.0,
+     "Z": 0.0
+    }
+   },
+   "geometry": {
+    "translation": {
+     "x": -19.2582,
+     "y": -0.6083,
+     "z": -10.66
+    },
+    "orientation": {
+     "type": "quaternion",
+     "value": {
+      "W": 0.010362545,
+      "X": 0.61852529,
+      "Y": -0.013161927,
+      "Z": 0.785586308
+     }
+    },
+    "type": "box",
+    "x": 33.3075,
+    "y": 22.7378,
+    "z": 51.8496
+   }
+  },
+  {
+   "id": "R_rf_j1_origin",
+   "parent": "R_hand_base",
+   "translation": {
+    "x": -113.24,
+    "y": 9.37,
+    "z": 2.37
+   },
+   "orientation": {
+    "type": "quaternion",
+    "value": {
+     "W": 0.999599582,
+     "X": 0.0,
+     "Y": 0.0,
+     "Z": -0.028296223
+    }
+   }
+  },
+  {
+   "id": "R_rf_l1",
+   "parent": "R_rf_j1",
+   "translation": {
+    "x": 0.0,
+    "y": 0.0,
+    "z": 0.0
+   },
+   "orientation": {
+    "type": "quaternion",
+    "value": {
+     "W": 1.0,
+     "X": 0.0,
+     "Y": 0.0,
+     "Z": 0.0
+    }
+   },
+   "geometry": {
+    "translation": {
+     "x": -15.6283,
+     "y": 0.0,
+     "z": -7.8807
+    },
+    "orientation": {
+     "type": "quaternion",
+     "value": {
+      "W": 1.053e-06,
+      "X": 0.608286522,
+      "Y": -8.07e-07,
+      "Z": 0.793717523
+     }
+    },
+    "type": "box",
+    "x": 24.8597,
+    "y": 22.0,
+    "z": 48.9258
+   }
+  },
+  {
+   "id": "R_lf_j1_origin",
+   "parent": "R_hand_base",
+   "translation": {
+    "x": -109.47,
+    "y": 29.64,
+    "z": -0.19
+   },
+   "orientation": {
+    "type": "quaternion",
+    "value": {
+     "W": 0.997297593,
+     "X": -0.043823426,
+     "Y": -0.0025903,
+     "Z": -0.058909319
+    }
+   }
+  },
+  {
+   "id": "R_lf_l1",
+   "parent": "R_lf_j1",
+   "translation": {
+    "x": 0.0,
+    "y": 0.0,
+    "z": 0.0
+   },
+   "orientation": {
+    "type": "quaternion",
+    "value": {
+     "W": 1.0,
+     "X": 0.0,
+     "Y": 0.0,
+     "Z": 0.0
+    }
+   },
+   "geometry": {
+    "translation": {
+     "x": -13.4127,
+     "y": 0.0,
+     "z": -7.4006
+    },
+    "orientation": {
+     "type": "quaternion",
+     "value": {
+      "W": -1.096e-06,
+      "X": 0.825953403,
+      "Y": -7.48e-07,
+      "Z": -0.563738393
+     }
+    },
+    "type": "box",
+    "x": 23.6123,
+    "y": 19.28,
+    "z": 43.3382
+   }
+  },
+  {
+   "id": "R_th_j1_origin",
+   "parent": "R_th_l0",
+   "translation": {
+    "x": -6.75,
+    "y": -20.97,
+    "z": -2.76
+   },
+   "orientation": {
+    "type": "quaternion",
+    "value": {
+     "W": -1.0676e-05,
+     "X": 0.006446304,
+     "Y": 0.999978176,
+     "Z": 0.001446425
+    }
+   }
+  },
+  {
+   "id": "R_th_l1",
+   "parent": "R_th_j1",
+   "translation": {
+    "x": 0.0,
+    "y": 0.0,
+    "z": 0.0
+   },
+   "orientation": {
+    "type": "quaternion",
+    "value": {
+     "W": 1.0,
+     "X": 0.0,
+     "Y": 0.0,
+     "Z": 0.0
+    }
+   },
+   "geometry": {
+    "translation": {
+     "x": 16.3534,
+     "y": -4.1991,
+     "z": 0.108
+    },
+    "orientation": {
+     "type": "quaternion",
+     "value": {
+      "W": -0.130490639,
+      "X": 0.694961869,
+      "Y": -0.20317554,
+      "Z": -0.677288634
+     }
+    },
+    "type": "box",
+    "x": 38.2003,
+    "y": 41.4679,
+    "z": 87.4732
+   }
+  },
+  {
+   "id": "R_ff_j2_origin",
+   "parent": "R_ff_l1",
+   "translation": {
+    "x": -34.06,
+    "y": 0.0,
+    "z": -11.41
+   },
+   "orientation": {
+    "type": "quaternion",
+    "value": {
+     "W": 0.999999999,
+     "X": -1.5e-05,
+     "Y": -1e-09,
+     "Z": 5e-05
+    }
+   }
+  },
+  {
+   "id": "R_ff_l2",
+   "parent": "R_ff_j2",
+   "translation": {
+    "x": 0.0,
+    "y": 0.0,
+    "z": 0.0
+   },
+   "orientation": {
+    "type": "quaternion",
+    "value": {
+     "W": 1.0,
+     "X": 0.0,
+     "Y": 0.0,
+     "Z": 0.0
+    }
+   },
+   "geometry": {
+    "translation": {
+     "x": -13.6882,
+     "y": -1.052,
+     "z": -18.2012
+    },
+    "orientation": {
+     "type": "quaternion",
+     "value": {
+      "W": 0.218074649,
+      "X": 0.672637821,
+      "Y": -0.625327723,
+      "Z": -0.330101573
+     }
+    },
+    "type": "box",
+    "x": 25.48,
+    "y": 25.48,
+    "z": 58.0913
+   }
+  },
+  {
+   "id": "R_mf_j2_origin",
+   "parent": "R_mf_l1",
+   "translation": {
+    "x": -38.29,
+    "y": 0.0,
+    "z": -14.67
+   },
+   "orientation": {
+    "type": "quaternion",
+    "value": {
+     "W": 1.0,
+     "X": 0.0,
+     "Y": 0.0,
+     "Z": 0.0
+    }
+   }
+  },
+  {
+   "id": "R_mf_l2",
+   "parent": "R_mf_j2",
+   "translation": {
+    "x": 0.0,
+    "y": 0.0,
+    "z": 0.0
+   },
+   "orientation": {
+    "type": "quaternion",
+    "value": {
+     "W": 1.0,
+     "X": 0.0,
+     "Y": 0.0,
+     "Z": 0.0
+    }
+   },
+   "geometry": {
+    "translation": {
+     "x": -13.5847,
+     "y": -0.7624,
+     "z": -18.2668
+    },
+    "orientation": {
+     "type": "quaternion",
+     "value": {
+      "W": 0.198469823,
+      "X": 0.678680996,
+      "Y": -0.671440602,
+      "Z": -0.221741636
+     }
+    },
+    "type": "box",
+    "x": 21.9885,
+    "y": 21.8891,
+    "z": 55.852
+   }
+  },
+  {
+   "id": "R_rf_j2_origin",
+   "parent": "R_rf_l1",
+   "translation": {
+    "x": -33.64,
+    "y": 0.0,
+    "z": -12.58
+   },
+   "orientation": {
+    "type": "quaternion",
+    "value": {
+     "W": 0.999999999,
+     "X": -1.5e-05,
+     "Y": -1e-09,
+     "Z": 5e-05
+    }
+   }
+  },
+  {
+   "id": "R_rf_l2",
+   "parent": "R_rf_j2",
+   "translation": {
+    "x": 0.0,
+    "y": 0.0,
+    "z": 0.0
+   },
+   "orientation": {
+    "type": "quaternion",
+    "value": {
+     "W": 1.0,
+     "X": 0.0,
+     "Y": 0.0,
+     "Z": 0.0
+    }
+   },
+   "geometry": {
+    "translation": {
+     "x": -13.9587,
+     "y": 0.5,
+     "z": -19.699
+    },
+    "orientation": {
+     "type": "quaternion",
+     "value": {
+      "W": -0.202453363,
+      "X": -0.677503357,
+      "Y": 0.677505846,
+      "Z": 0.202454107
+     }
+    },
+    "type": "box",
+    "x": 20.74,
+    "y": 21.7779,
+    "z": 58.0153
+   }
+  },
+  {
+   "id": "R_lf_j2_origin",
+   "parent": "R_lf_l1",
+   "translation": {
+    "x": -29.74,
+    "y": -0.05,
+    "z": -11.63
+   },
+   "orientation": {
+    "type": "quaternion",
+    "value": {
+     "W": 1.0,
+     "X": -1e-05,
+     "Y": 0.0,
+     "Z": 0.0
+    }
+   }
+  },
+  {
+   "id": "R_lf_l2",
+   "parent": "R_lf_j2",
+   "translation": {
+    "x": 0.0,
+    "y": 0.0,
+    "z": 0.0
+   },
+   "orientation": {
+    "type": "quaternion",
+    "value": {
+     "W": 1.0,
+     "X": 0.0,
+     "Y": 0.0,
+     "Z": 0.0
+    }
+   },
+   "geometry": {
+    "translation": {
+     "x": -8.5786,
+     "y": 0.0,
+     "z": -15.3258
+    },
+    "orientation": {
+     "type": "quaternion",
+     "value": {
+      "W": -0.194937751,
+      "X": -0.679703933,
+      "Y": 0.67970643,
+      "Z": 0.194938467
+     }
+    },
+    "type": "box",
+    "x": 24.48,
+    "y": 24.48,
+    "z": 50.2019
+   }
+  },
+  {
+   "id": "R_th_j2_origin",
+   "parent": "R_th_l1",
+   "translation": {
+    "x": 50.88,
+    "y": -13.01,
+    "z": 2.02
+   },
+   "orientation": {
+    "type": "quaternion",
+    "value": {
+     "W": 1.0,
+     "X": 0.0,
+     "Y": 0.0,
+     "Z": 0.0
+    }
+   }
+  },
+  {
+   "id": "R_th_l2",
+   "parent": "R_th_j2",
+   "translation": {
+    "x": 0.0,
+    "y": 0.0,
+    "z": 0.0
+   },
+   "orientation": {
+    "type": "quaternion",
+    "value": {
+     "W": 1.0,
+     "X": 0.0,
+     "Y": 0.0,
+     "Z": 0.0
+    }
+   },
+   "geometry": {
+    "translation": {
+     "x": 8.3705,
+     "y": -8.2731,
+     "z": -1.4568
+    },
+    "orientation": {
+     "type": "quaternion",
+     "value": {
+      "W": 1.0,
+      "X": 0.0,
+      "Y": 0.0,
+      "Z": 0.0
+     }
+    },
+    "type": "sphere",
+    "r": 18.45
+   }
+  },
+  {
+   "id": "R_ff_tip",
+   "parent": "R_ff_l2",
+   "translation": {
+    "x": -30.0,
+    "y": 0.0,
+    "z": -40.0
+   },
+   "orientation": {
+    "type": "quaternion",
+    "value": {
+     "W": 1.0,
+     "X": 0.0,
+     "Y": 0.0,
+     "Z": 0.0
+    }
+   }
+  },
+  {
+   "id": "R_mf_tip",
+   "parent": "R_mf_l2",
+   "translation": {
+    "x": -30.4,
+    "y": 0.0,
+    "z": -39.7
+   },
+   "orientation": {
+    "type": "quaternion",
+    "value": {
+     "W": 1.0,
+     "X": 0.0,
+     "Y": 0.0,
+     "Z": 0.0
+    }
+   }
+  },
+  {
+   "id": "R_rf_tip",
+   "parent": "R_rf_l2",
+   "translation": {
+    "x": -27.2,
+    "y": 0.0,
+    "z": -42.0
+   },
+   "orientation": {
+    "type": "quaternion",
+    "value": {
+     "W": 1.0,
+     "X": 0.0,
+     "Y": 0.0,
+     "Z": 0.0
+    }
+   }
+  },
+  {
+   "id": "R_lf_tip",
+   "parent": "R_lf_l2",
+   "translation": {
+    "x": -18.2,
+    "y": 0.0,
+    "z": -30.6
+   },
+   "orientation": {
+    "type": "quaternion",
+    "value": {
+     "W": 1.0,
+     "X": 0.0,
+     "Y": 0.0,
+     "Z": 0.0
+    }
+   }
+  },
+  {
+   "id": "R_th_tip",
+   "parent": "R_th_l2",
+   "translation": {
+    "x": 23.0,
+    "y": -15.1,
+    "z": -1.8
+   },
+   "orientation": {
+    "type": "quaternion",
+    "value": {
+     "W": 1.0,
+     "X": 0.0,
+     "Y": 0.0,
+     "Z": 0.0
+    }
+   }
+  }
+ ],
+ "joints": [
+  {
+   "id": "R_th_j0",
+   "type": "revolute",
+   "parent": "R_th_j0_origin",
+   "axis": {
+    "x": 1.0,
+    "y": 0.0,
+    "z": 0.0
+   },
+   "min": -0.9053,
+   "max": 91.9597
+  },
+  {
+   "id": "R_ff_j1",
+   "type": "revolute",
+   "parent": "R_ff_j1_origin",
+   "axis": {
+    "x": 0.0,
+    "y": 1.0,
+    "z": 0.0
+   },
+   "min": -62.716,
+   "max": 16.5642
+  },
+  {
+   "id": "R_mf_j1",
+   "type": "revolute",
+   "parent": "R_mf_j1_origin",
+   "axis": {
+    "x": 0.0,
+    "y": 1.0,
+    "z": 0.0
+   },
+   "min": -62.1315,
+   "max": 16.0485
+  },
+  {
+   "id": "R_rf_j1",
+   "type": "revolute",
+   "parent": "R_rf_j1_origin",
+   "axis": {
+    "x": 0.0,
+    "y": 1.0,
+    "z": 0.0
+   },
+   "min": -58.1781,
+   "max": 16.272
+  },
+  {
+   "id": "R_lf_j1",
+   "type": "revolute",
+   "parent": "R_lf_j1_origin",
+   "axis": {
+    "x": 0.0,
+    "y": 1.0,
+    "z": 0.0
+   },
+   "min": -57.9719,
+   "max": 16.1058
+  },
+  {
+   "id": "R_th_j1",
+   "type": "revolute",
+   "parent": "R_th_j1_origin",
+   "axis": {
+    "x": 0.0,
+    "y": 0.0,
+    "z": -1.0
+   },
+   "min": -19.8702,
+   "max": 10.508
+  },
+  {
+   "id": "R_ff_j2",
+   "type": "revolute",
+   "parent": "R_ff_j2_origin",
+   "axis": {
+    "x": 0.0,
+    "y": 1.0,
+    "z": 0.0
+   },
+   "mimic": {
+    "joint": "R_ff_j1",
+    "multiplier": 1.13028,
+    "offset": -0.00053
+   }
+  },
+  {
+   "id": "R_mf_j2",
+   "type": "revolute",
+   "parent": "R_mf_j2_origin",
+   "axis": {
+    "x": 0.0,
+    "y": 1.0,
+    "z": 0.0
+   },
+   "mimic": {
+    "joint": "R_mf_j1",
+    "multiplier": 1.13311,
+    "offset": -0.00079
+   }
+  },
+  {
+   "id": "R_rf_j2",
+   "type": "revolute",
+   "parent": "R_rf_j2_origin",
+   "axis": {
+    "x": 0.0,
+    "y": 1.0,
+    "z": 0.0
+   },
+   "mimic": {
+    "joint": "R_rf_j1",
+    "multiplier": 1.12935,
+    "offset": 0.00065
+   }
+  },
+  {
+   "id": "R_lf_j2",
+   "type": "revolute",
+   "parent": "R_lf_j2_origin",
+   "axis": {
+    "x": 0.0,
+    "y": 1.0,
+    "z": 0.0
+   },
+   "mimic": {
+    "joint": "R_lf_j1",
+    "multiplier": 1.15037,
+    "offset": 0.00186
+   }
+  },
+  {
+   "id": "R_th_j2",
+   "type": "revolute",
+   "parent": "R_th_j2_origin",
+   "axis": {
+    "x": 0.0,
+    "y": 0.0,
+    "z": -1.0
+   },
+   "mimic": {
+    "joint": "R_th_j1",
+    "multiplier": 1.35316,
+    "offset": 0.00765
+   }
+  }
+ ]
+}

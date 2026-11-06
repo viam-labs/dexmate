@@ -112,8 +112,10 @@ A Vega lidar as a point-cloud-only camera (`GetPointCloud`), in the lidar's own 
 ### `viam-labs:dexmate:gripper`
 
 The installed end effector: DexGripper, F5D6 or F5D6 V2 hand. Set `ROBOT_CONFIG` (e.g. `vega_1p_gripper`)
-so `dexcontrol` knows which. `Open`/`Grab` use Dexmate's open/close positions; inputs are joint
-positions in radians. Dexmate reports no grasp state, so `IsHoldingSomething` is a heuristic: after a grab,
+so `dexcontrol` knows which; the component has no attribute for it. It reads the installed type from
+dexcontrol's joint names and serves the matching kinematic model (fingers and jaws articulated, collision
+geometry only; no visual meshes). `Open`/`Grab` use Dexmate's open/close positions; inputs are joint
+positions in radians, in the kinematic model's joint order when bundled kinematics are in use. Dexmate reports no grasp state, so `IsHoldingSomething` is a heuristic: after a grab,
 a joint stalled short of closed, or (V2 hands) fingertip force.
 
 | Attribute | Required | Description |
@@ -122,6 +124,8 @@ a joint stalled short of closed, or (V2 hands) fingertip force.
 | `move_time_s` | no | Longest wait for an open/close to finish. Default `2.0`. |
 | `holding_tolerance_rad` | no | Stall distance from closed that counts as holding. Default `0.1`. |
 | `holding_force` | no | Summed fingertip force that counts as holding (V2 hands). Default `1.0`. |
+| `variant` | no | Bundled kinematics, as for the arm. Default from `ROBOT_NAME`. |
+| `collision` | no | `boxes` (default) or `meshes`, as for the arm. |
 
 `DoCommand`: `{"set_mode": "mit" | "velocity" | "force"}` (DexGripper), `{"get_finger_tip_force": true}` (V2 hands).
 

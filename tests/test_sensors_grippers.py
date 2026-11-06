@@ -235,3 +235,29 @@ def test_gripper_without_variant_keeps_dexcontrol_order(monkeypatch):
         run(g.get_kinematics())
     with pytest.raises(ValueError, match="meshes"):
         make(Gripper, hand="left_hand", collision="meshes")
+
+
+def test_sim_end_effectors_match_dexbot_configs():
+    from dexbot_utils.configs.components.vega_1.hand import DexSGripperConfig, F5D6HandV1Config
+
+    for sim_cls, cfg in ((sim._Hand, F5D6HandV1Config(side="left")), (sim._DexGripper, DexSGripperConfig(side="left"))):
+        assert sim_cls("L").joint_name == cfg.joints
+        assert list(sim_cls.OPEN) == cfg.pose_pool["open"] and list(sim_cls.CLOSE) == cfg.pose_pool["close"]
+
+
+def test_robot_config_selects_dexgripper_in_sim(monkeypatch):
+    monkeypatch.setenv("ROBOT_CONFIG", "vega_1p_gripper")
+    monkeypatch.setenv("ROBOT_NAME", "dm/vgsim-1p")
+    monkeypatch.setattr(sim, "ROBOT", sim.SimRobot())
+    g = make(Gripper, hand="right_hand", collision="meshes")
+    model = json.loads(run(g.get_kinematics())[1])
+    assert model["output_frames"] == ["R_gripper_base"] and len([j for j in model["joints"] if "mimic" not in j]) == 1
+    assert run(g.get_current_inputs()) == pytest.approx([0.7854])
+    assert run(g.grab()) is False
+    assert run(g.get_current_inputs()) == pytest.approx([0.0])
+    sim.ROBOT.right_hand.block_at = 0.5  # an object stops the jaws halfway
+    run(g.open())
+    assert run(g.grab()) is True
+    assert run(g.do_command({"set_mode": "force"})) == {"set_mode": {"mode": "force"}}
+    with pytest.raises(ValueError, match="fingertip"):
+        run(g.do_command({"get_finger_tip_force": True}))

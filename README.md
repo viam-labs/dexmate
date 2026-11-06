@@ -151,7 +151,8 @@ arm's `blue_button` / `green_button`. Errors on `_no_ft` arms.
 Set `DEXMATE_SIM=1` in the module's `env` to run without a Vega or a Dexmate network.
 `src/models/sim.py` stands in for `dexcontrol`: joints jump to their targets, the chassis
 accepts commands, cameras return synthetic frames (a color ramp; depth 0.5–3 m), IMUs read
-level and at rest, lidars return fixed rings, and both hands are six-joint hands.
+level and at rest, and lidars return fixed rings. The end effectors are F5D6 hands, or DexGrippers when
+`ROBOT_CONFIG` names one (e.g. `vega_1p_gripper`), with Dexmate's open/close poses.
 There are no dynamics or joint-limit checks. That's enough to see the whole robot in the
 3D scene and to plan with the motion service.
 

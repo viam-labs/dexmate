@@ -6,6 +6,7 @@ data, and hands close until they meet an optional simulated object.
 Enough for the frame system, the 3D scene and motion planning; no dynamics.
 """
 
+import os
 import time
 
 import numpy as np
@@ -58,14 +59,13 @@ class _Arm(_Joints):
         self.wrench_sensor = _Wrench()
 
 
-class _Hand:
-    """F5D6 hand with dexcontrol's joint names and open/close poses. Set `block_at` (0..1, the
+class _EndEffector:
+    """An end effector with dexcontrol's joint names and open/close poses. Set `block_at` (0..1, the
     fraction of open->close travel) to put an object in its grip: closing then stalls there."""
 
-    # dexbot_utils F5D6HandV1Config: joint order and pose_pool
-    JOINTS = ("th_j1", "ff_j1", "mf_j1", "rf_j1", "lf_j1", "th_j0")
-    OPEN = (0.1834, 0.2891, 0.2801, 0.284, 0.2811, -0.0158)
-    CLOSE = (-0.1, -1.0946, -1.0844, -1.0154, -1.0118, 0.84)
+    JOINTS: tuple[str, ...]
+    OPEN: tuple[float, ...]
+    CLOSE: tuple[float, ...]
 
     def __init__(self, side: str):
         self.joint_name = [f"{side}_{j}" for j in self.JOINTS]
@@ -89,10 +89,34 @@ class _Hand:
     def close_hand(self, wait_time=0.0, exit_on_reach=False, **kwargs):
         self.set_joint_pos(self._joint_pos_close)
 
-    def get_finger_tip_force(self):
+    def _gripping(self):
         stalled = self._joint_pos_open + self.block_at * (self._joint_pos_close - self._joint_pos_open) if self.block_at is not None else None
-        gripping = stalled is not None and np.allclose(self._pos, stalled)
-        return np.full(5, 2.0 if gripping else 0.0)
+        return stalled is not None and np.allclose(self._pos, stalled)
+
+
+class _Hand(_EndEffector):
+    """F5D6 hand (dexbot_utils F5D6HandV1Config joint order and pose_pool)."""
+
+    JOINTS = ("th_j1", "ff_j1", "mf_j1", "rf_j1", "lf_j1", "th_j0")
+    OPEN = (0.1834, 0.2891, 0.2801, 0.284, 0.2811, -0.0158)
+    CLOSE = (-0.1, -1.0946, -1.0844, -1.0154, -1.0118, 0.84)
+
+    def get_finger_tip_force(self):
+        return np.full(5, 2.0 if self._gripping() else 0.0)
+
+
+class _DexGripper(_EndEffector):
+    """DexGripper (dexbot_utils DexSGripperConfig): one driven jaw, the other mirrors it; no fingertip force."""
+
+    JOINTS = ("gripper_j1",)
+    OPEN = (0.7854,)
+    CLOSE = (0.0,)
+
+    def set_mode(self, mode: str):
+        return {"mode": mode}
+
+    def stop(self):
+        pass
 
 
 class _Imu:
@@ -160,8 +184,10 @@ class _Sensors:
 
 class SimRobot:
     def __init__(self):
+        # Like dexcontrol, ROBOT_CONFIG (e.g. vega_1p_gripper) picks the end effector; F5D6 otherwise.
+        hand = _DexGripper if "gripper" in os.environ.get("ROBOT_CONFIG", "") else _Hand
         self.left_arm, self.right_arm = _Arm(), _Arm()
-        self.left_hand, self.right_hand = _Hand("L"), _Hand("R")
+        self.left_hand, self.right_hand = hand("L"), hand("R")
         self.head, self.torso = _Joints(3), _Joints(3)
         self.chassis = _Chassis()
         self.sensors = _Sensors()

@@ -1,7 +1,7 @@
 # dexmate
 
 Viam module for the [Dexmate Vega](https://dexmate.ai) humanoid, built on Dexmate's
-[`dexcontrol`](https://github.com/dexmate-ai/dexcontrol) SDK. **Not yet tested on hardware.**
+[`dexcontrol`](https://github.com/dexmate-ai/dexcontrol) SDK.
 
 > This module is Apache-2.0. Its runtime dependency `dexcontrol` is licensed separately by Dexmate
 > (AGPL-3.0 or commercial); it's installed from PyPI, not included here. See `NOTICE`.
